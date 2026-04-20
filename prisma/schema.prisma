@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  phoneNumber   String    @unique
+  username      String?   @unique
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  bio           String?
+  isVerified    Boolean   @default(false)
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  posts         Post[]
+  media         Media[]
+  boards        Board[]
+  saves         Save[]
+  postLikes     PostLike[]
+  comments      Comment[]
+  followers     Follow[]  @relation("follower")
+  following     Follow[]  @relation("following")
+  otpVerifications OtpVerification[]
+
+  @@index([phoneNumber])
+  @@index([username])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model OtpVerification {
+  id        String    @id @default(cuid())
+  phoneNumber String
+  code      String
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  verified  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([phoneNumber])
+  @@index([userId])
+}
+
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Post {
+  id          String      @id @default(cuid())
+  status      PostStatus  @default(PUBLISHED)
+  title       String
+  description String?     @db.Text
+  url         String?     @db.Text
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Media relationship
+  media       Media[]
+  
+  // Engagement
+  likes       PostLike[]
+  comments    Comment[]
+  
+  // Saving posts
+  saves       Save[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, status])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      MediaType // 'IMAGE' or 'VIDEO'
+  url       String    @db.Text
+  thumbnail String?   @db.Text // For videos
+  width     Int?
+  height    Int?
+  fileSize  Int?
+  
+  order     Int       @default(0)
+  
+  createdAt DateTime  @default(now())
+
+  @@index([postId])
+  @@index([userId])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Board {
+  id          String      @id @default(cuid())
+  title       String
+  description String?     @db.Text
+  cover       String?     // Cover image URL
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  saves       Save[]
+  isPrivate   Boolean     @default(true)
+  isDefault   Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+  @@unique([userId, isDefault])
+}
+
+model Save {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  boardId   String
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([boardId])
+}
+
+model PostLike {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String    @db.Text
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model Follow {
+  id          String    @id @default(cuid())
+  followerId  String
+  follower    User      @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  
+  followingId String
+  following   User      @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
