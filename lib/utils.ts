@@ -19,12 +19,12 @@ export const DisplayName = (firstName: string, lastName: string) => {
 
 export type MediaDimensions =
   | {
-      type: "image";
+      type: "IMAGE";
       width: number;
       height: number;
     }
   | {
-      type: "video";
+      type: "VIDEO";
       width: number;
       height: number;
       duration: number;
@@ -38,7 +38,7 @@ export const getMediaDimensions = (file: File): Promise<MediaDimensions> => {
       const img = new Image();
       img.onload = () => {
         resolve({
-          type: "image",
+          type: "IMAGE",
           width: img.width,
           height: img.height,
         });
@@ -54,7 +54,7 @@ export const getMediaDimensions = (file: File): Promise<MediaDimensions> => {
 
       video.onloadedmetadata = () => {
         resolve({
-          type: "video",
+          type: "VIDEO",
           width: video.videoWidth,
           height: video.videoHeight,
           duration: video.duration,

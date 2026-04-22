@@ -64,7 +64,7 @@ enum PostStatus {
 model Post {
   id          String      @id @default(cuid())
   status      PostStatus  @default(PUBLISHED)
-  title       String
+  title       String?
   description String?     @db.Text
   url         String?     @db.Text
   userId      String

@@ -21,9 +21,6 @@ export async function proxy(request: NextRequest) {
       new URL(`/auth?callbackUrl=${path}`, request.nextUrl),
     );
   }
-  if (session?.phoneNumber && path === "/auth") {
-    return NextResponse.redirect(new URL("/", request.nextUrl));
-  }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", path);

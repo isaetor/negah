@@ -135,7 +135,7 @@ const LoginForm = () => {
           if (user?.username) {
             router.push(callbackUrl);
           } else {
-            router.refresh();
+            router.push(`/complete-profile?callbackUrl=${callbackUrl}`);
           }
         } else {
           toast.error(message);

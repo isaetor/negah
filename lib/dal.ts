@@ -24,7 +24,7 @@ export const getUser = async () => {
     const user = await prisma.user.findUnique({
       where: { phoneNumber: session.phoneNumber },
     });
-    return JSON.parse(JSON.stringify(user));
+    return user;
   } catch (error) {
     console.log("Failed to fetch user. error: ", error);
     return null;

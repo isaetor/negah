@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "isaetor.storage.iran.liara.space",
       },
+      {
+        protocol: "https",
+        hostname: "negah.hot.ir-central1.arvanstorage.ir",
+      },
     ],
   },
   experimental: {

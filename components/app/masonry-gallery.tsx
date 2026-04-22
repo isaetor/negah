@@ -2,12 +2,9 @@
 import { ExternalLink, MoreVertical, Save, Share } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-// import { useState } from "react";
 import Masonry from "react-masonry-css";
 import type { MediaType } from "@/generated/prisma/browser";
 import { Button } from "../ui/button";
-
-// import SaveDialog from "./save-dialog";
 
 const breakpointColumnsObj = {
   default: 6,
@@ -31,35 +28,27 @@ type Props = {
 };
 
 const MasonryGallery = ({ posts }: Props) => {
-  // const [selectedPost, setSelectedPost] = useState<Props["posts"][0] | null>(
-  //   null,
-  // );
-
-  // const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-
-  // const handleSaveClick = (post: Props["posts"][0]) => {
-  //   setSelectedPost(post);
-  //   setIsSaveDialogOpen(true);
-  // };
+  const postsWithCover = posts.filter((post) => post.media[0]?.url);
 
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex gap-2"
-        columnClassName="flex flex-col gap-2"
-      >
-        {posts.map((post) => (
+    <Masonry
+      breakpointCols={breakpointColumnsObj}
+      className="flex gap-2"
+      columnClassName="flex flex-col gap-2"
+    >
+      {postsWithCover.map((post) => {
+        const cover = post.media[0];
+        return (
           <Link
-            href={"/"}
+            href={`/edit/${post.id}`}
             key={post.id}
             className="relative group cursor-pointer"
           >
             <Image
-              src={post.media[0].url}
+              src={cover.url}
               alt={post.title || "Post Image"}
-              width={post.media[0].width || 600}
-              height={post.media[0].height || 900}
+              width={cover.width || 600}
+              height={cover.height || 900}
               loading="eager"
               className="rounded-2xl"
             />
@@ -92,15 +81,9 @@ const MasonryGallery = ({ posts }: Props) => {
               </Button>
             </div>
           </Link>
-        ))}
-      </Masonry>
-      {/* <SaveDialog
-        open={isSaveDialogOpen}
-        setOpen={setIsSaveDialogOpen}
-        selectedPost={selectedPost}
-        setSelectedPost={setSelectedPost}
-      /> */}
-    </>
+        );
+      })}
+    </Masonry>
   );
 };
 

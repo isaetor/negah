@@ -10,9 +10,7 @@ export const postSchema = z.object({
     .max(800, "توظیحات نمیتواند بیشتر از 800 کارکتر باشد")
     .optional(),
   url: z
-    .httpUrl({
-      message: "آدرس وب‌سایت باید یک URL معتبر باشد",
-    })
+    .httpUrl("آدرس وب‌سایت باید یک URL معتبر باشد")
     .optional()
     .or(z.literal("")),
   // board: z.string().min(1, "برد را انتخاب کنید"),
@@ -22,11 +20,10 @@ export const postSchema = z.object({
       z.object({
         id: z.string(),
         url: z.string(),
-        // type: z.enum(["image", "video"]),
-        type: z.enum(["image"]),
-        width: z.number(),
-        height: z.number(),
-        fileSize: z.number(),
+        type: z.enum(["IMAGE", "VIDEO"]),
+        width: z.number().nullable(),
+        height: z.number().nullable(),
+        fileSize: z.number().nullable(),
         order: z.number(),
       }),
     )

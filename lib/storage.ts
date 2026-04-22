@@ -4,52 +4,52 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-const LIARA_ENDPOINT = process.env.LIARA_ENDPOINT;
-const LIARA_ACCESS_KEY = process.env.LIARA_ACCESS_KEY;
-const LIARA_SECRET_KEY = process.env.LIARA_SECRET_KEY;
-const LIARA_BUCKET = process.env.LIARA_BUCKET;
-const LIARA_PUBLIC_URL = process.env.LIARA_PUBLIC_URL;
+const S3_ENDPOINT = process.env.S3_ENDPOINT;
+const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY;
+const S3_SECRET_KEY = process.env.S3_SECRET_KEY;
+const S3_BUCKET = process.env.S3_BUCKET;
+const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL;
 
 const s3 = new S3Client({
-  endpoint: LIARA_ENDPOINT,
+  endpoint: S3_ENDPOINT,
   region: "default",
   credentials: {
-    accessKeyId: LIARA_ACCESS_KEY || "",
-    secretAccessKey: LIARA_SECRET_KEY || "",
+    accessKeyId: S3_ACCESS_KEY || "",
+    secretAccessKey: S3_SECRET_KEY || "",
   },
   forcePathStyle: true,
 });
 
-export interface LiaraUploadResult {
+export interface StorageUploadResult {
   success: boolean;
   url?: string;
   message?: string;
 }
 
-export async function uploadToLiara(
+export async function uploadToStorage(
   file: Buffer,
   filename: string,
   mimeType: string,
-): Promise<LiaraUploadResult> {
+): Promise<StorageUploadResult> {
   try {
-    const key = `negah/${filename}`;
     const command = new PutObjectCommand({
-      Bucket: LIARA_BUCKET,
-      Key: key,
+      Bucket: S3_BUCKET,
+      Key: filename,
       Body: file,
       ContentType: mimeType,
+      ACL: "public-read",
     });
 
     await s3.send(command);
 
-    const url = generateLiaraUrl(filename);
+    const url = `${S3_PUBLIC_URL}/${filename}`;
 
     return {
       success: true,
       url,
     };
   } catch (error) {
-    console.error("Error uploading to Liara:", error);
+    console.error("Error uploading to Storage:", error);
     return {
       success: false,
       message: error instanceof Error ? error.message : "Unknown error",
@@ -57,12 +57,12 @@ export async function uploadToLiara(
   }
 }
 
-export async function deleteFromLiara(filename: string) {
+export async function deleteFromStorage(filename: string) {
   try {
-    const key = `negah/${filename}`;
+    const key = `${filename}`;
 
     const command = new DeleteObjectCommand({
-      Bucket: LIARA_BUCKET,
+      Bucket: S3_BUCKET,
       Key: key,
     });
 
@@ -76,8 +76,4 @@ export async function deleteFromLiara(filename: string) {
       message: error instanceof Error ? error.message : "Unknown error",
     };
   }
-}
-
-export function generateLiaraUrl(filename: string): string {
-  return `${LIARA_PUBLIC_URL}/pinterest/${filename}`;
 }

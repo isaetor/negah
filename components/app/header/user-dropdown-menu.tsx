@@ -43,7 +43,9 @@ const UserDropdownMenu = ({ user }: Props) => {
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link href={user.username ? `/${user.username}` : "/complete-profile"}>
+              <Link
+                href={user.username ? `/${user.username}` : "/complete-profile"}
+              >
                 <BadgeCheckIcon />
                 حساب کاربری
               </Link>
