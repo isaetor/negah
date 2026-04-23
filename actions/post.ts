@@ -42,7 +42,7 @@ export const createPost = async () => {
   }
 };
 
-export const deletePost = async (postId: string) => {
+export const deletePosts = async (postIds: string[]) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -52,43 +52,59 @@ export const deletePost = async (postId: string) => {
       };
     }
 
-    const post = await prisma.post.findUnique({
-      where: { id: postId },
+    if (postIds.length === 0) {
+      return {
+        success: false,
+        message: "هیچ پستی برای حذف انتخاب نشده است",
+      };
+    }
+
+    const posts = await prisma.post.findMany({
+      where: {
+        id: { in: postIds },
+        userId: user.id,
+      },
       select: {
-        userId: true,
+        id: true,
         media: { select: { url: true } },
       },
     });
 
-    if (!post || post.userId !== user.id) {
+    if (posts.length === 0) {
       return {
         success: false,
-        message: "پست یافت نشد",
+        message: "پست معتبری برای حذف یافت نشد",
       };
     }
 
-    for (const m of post.media) {
-      const filename = m.url.split("/").pop();
-      if (filename) {
-        await deleteFromStorage(filename);
+    for (const post of posts) {
+      for (const m of post.media) {
+        const filename = m.url.split("/").pop();
+        if (filename) {
+          await deleteFromStorage(filename);
+        }
       }
     }
 
-    await prisma.post.delete({
-      where: { id: postId },
+    await prisma.post.deleteMany({
+      where: {
+        id: { in: posts.map((post) => post.id) },
+        userId: user.id,
+      },
     });
 
     revalidatePath("/create");
     revalidatePath("/edit");
     return {
       success: true,
-      message: "پست حذف شد",
+      message:
+        posts.length === 1 ? "پست حذف شد" : "پست های انتخاب شده حذف شدند",
     };
   } catch (error) {
-    console.error("[deletePost] خطا:", error);
+    console.error("[deletePosts] خطا:", error);
     return {
       success: false,
-      message: "خطا در حذف پست",
+      message: "خطا در حذف گروهی پست ها",
     };
   }
 };
@@ -122,13 +138,26 @@ export const updatePost = async (
 
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { userId: true },
+      select: {
+        userId: true,
+        media: {
+          select: { id: true },
+          take: 1,
+        },
+      },
     });
 
     if (!post || post.userId !== user.id) {
       return {
         success: false,
         message: "پست یافت نشد",
+      };
+    }
+
+    if (post.media.length === 0) {
+      return {
+        success: false,
+        message: "برای ذخیره پست، حداقل یک تصویر آپلود کنید",
       };
     }
 
