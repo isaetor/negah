@@ -3,9 +3,18 @@ import { Loader2, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { deletePost } from "@/actions/post";
+import { deletePosts } from "@/actions/post";
 import { Button } from "@/components/ui/button";
+import {
+  ResponsiveAlertDialog,
+  ResponsiveAlertDialogContent,
+  ResponsiveAlertDialogDescription,
+  ResponsiveAlertDialogFooter,
+  ResponsiveAlertDialogHeader,
+  ResponsiveAlertDialogTitle,
+} from "@/components/ui/custom/responsive-alert-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -16,8 +25,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useState } from "react";
-import { ResponsiveAlertDialog, ResponsiveAlertDialogContent, ResponsiveAlertDialogDescription, ResponsiveAlertDialogFooter, ResponsiveAlertDialogHeader, ResponsiveAlertDialogTitle } from "@/components/ui/custom/responsive-alert-dialog";
 
 export function PostSidebar({
   posts,
@@ -33,26 +40,27 @@ export function PostSidebar({
   }[];
 }) {
   const router = useRouter();
-  const [isDeleted, setIsDeleted] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [deleteId, setDeleteId] = useState("")
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<string[]>([]);
 
   const handleDeletePost = async () => {
-    if (!deleteId) return
-    setIsDeleted(true)
+    if (deleteIds.length === 0) return;
+    setIsDeleted(true);
     try {
-      const del = await deletePost(deleteId);
+      const del = await deletePosts(deleteIds);
       if (!del.success) {
         toast.error(del.message || "خطا در حذف پست");
         return;
       }
-      setOpen(false)
+      setDeleteIds([]);
+      setOpen(false);
       router.push("/create");
     } catch (error) {
       console.error(error);
       toast.error("خطا در حذف پست. لطفا دوباره تلاش کنید.");
     } finally {
-      setIsDeleted(false)
+      setIsDeleted(false);
     }
   };
 
@@ -65,25 +73,33 @@ export function PostSidebar({
             <SidebarGroupContent>
               <SidebarMenu className="gap-2">
                 {posts.map((post) => (
-                  <Link key={post.id} href={`/edit/${post.id}`} className="group">
+                  <Link
+                    key={post.id}
+                    href={`/edit/${post.id}`}
+                    className="group"
+                  >
                     <SidebarMenuItem className="border bg-background rounded-xl flex items-start gap-3 p-1">
                       <Image
-                        src={post.media[0]?.url ?? "https://via.placeholder.com/70"}
+                        src={
+                          post.media[0]?.url ?? "https://via.placeholder.com/70"
+                        }
                         width={70}
                         height={70}
                         alt={post.title || "title post"}
                         className="rounded-lg aspect-square object-cover"
                       />
                       <div className="flex justify-between w-full gap-2 py-2 pl-2">
-                        <p className={`max-w-44 line-clamp-2 ${!post.title ? "text-muted-foreground text-xs" : ""}`}>
+                        <p
+                          className={`max-w-44 line-clamp-2 ${!post.title ? "text-muted-foreground text-xs" : ""}`}
+                        >
                           {post.title || "بدون عنوان"}
                         </p>
                         <Button
                           size={"icon-xs"}
                           variant={"outlineDestructive"}
                           onClick={() => {
-                            setDeleteId(post.id)
-                            setOpen(true)
+                            setDeleteIds((prev) => [...prev, post.id]);
+                            setOpen(true);
                           }}
                           disabled={isDeleted}
                         >
@@ -99,14 +115,16 @@ export function PostSidebar({
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
-      <ResponsiveAlertDialog
-        open={open}
-        onOpenChange={setOpen}
-      >
+      <ResponsiveAlertDialog open={open} onOpenChange={setOpen}>
         <ResponsiveAlertDialogContent>
           <ResponsiveAlertDialogHeader>
-            <ResponsiveAlertDialogTitle>آیا از حذف این پست مطمئن هستید؟</ResponsiveAlertDialogTitle>
-            <ResponsiveAlertDialogDescription>با حذف این پست، تمام محتوای آن از جمله متن، ویدیو و تمام تصاویر برای همیشه پاک خواهد شد. این عمل غیرقابل بازگشت است.</ResponsiveAlertDialogDescription>
+            <ResponsiveAlertDialogTitle>
+              آیا از حذف این پست مطمئن هستید؟
+            </ResponsiveAlertDialogTitle>
+            <ResponsiveAlertDialogDescription>
+              با حذف این پست، تمام محتوای آن از جمله متن، ویدیو و تمام تصاویر
+              برای همیشه پاک خواهد شد. این عمل غیرقابل بازگشت است.
+            </ResponsiveAlertDialogDescription>
           </ResponsiveAlertDialogHeader>
           <ResponsiveAlertDialogFooter>
             <Button
@@ -126,7 +144,6 @@ export function PostSidebar({
                   حذف پست
                 </>
               )}
-
             </Button>
           </ResponsiveAlertDialogFooter>
         </ResponsiveAlertDialogContent>

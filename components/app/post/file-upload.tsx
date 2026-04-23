@@ -4,7 +4,7 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteMedia, UploadMedia } from "@/actions/media";
-import { createPost, deletePost } from "@/actions/post";
+import { createPost, deletePosts } from "@/actions/post";
 import { getMediaDimensions } from "@/lib/utils";
 import { Button } from "../../ui/button";
 
@@ -99,8 +99,8 @@ export default function FileUpload({
   }, [selectedIndex]);
 
   useEffect(() => {
-    onUploadingChange?.(uploadingTempIds.size > 0);
-  }, [onUploadingChange, uploadingTempIds]);
+    onUploadingChange?.(uploadingTempIds.size > 0 || deletingIds.size > 0);
+  }, [deletingIds.size, onUploadingChange, uploadingTempIds.size]);
 
   const stopUploadingFor = useCallback((id: string) => {
     setUploadingTempIds((prev) => removeIdFromSet(prev, id));
@@ -375,7 +375,7 @@ export default function FileUpload({
           const confirmed = await onBeforeRemoveLastMedia();
           if (!confirmed) return;
           if (!currentPostId) return;
-          const del = await deletePost(currentPostId);
+          const del = await deletePosts([currentPostId]);
           if (!del.success) {
             toast.error(del.message || "خطا در حذف پست");
             return;
@@ -409,7 +409,7 @@ export default function FileUpload({
         stopUploadingFor(id);
 
         if (isLast && !isEdit && currentPostId) {
-          const del = await deletePost(currentPostId);
+          const del = await deletePosts([currentPostId]);
           if (!del.success) {
             toast.error(del.message || "خطا در حذف پست");
           } else {

@@ -29,7 +29,6 @@ import {
 import { Button } from "../../ui/button";
 import {
   ResponsiveAlertDialog,
-  ResponsiveAlertDialogAction,
   ResponsiveAlertDialogContent,
   ResponsiveAlertDialogDescription,
   ResponsiveAlertDialogFooter,
@@ -502,7 +501,9 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
           ) : (
             !isMobile &&
             isSaving && (
-              <div className="text-muted-foreground text-sm animate-pulse">در حال ذخیره ...</div>
+              <div className="text-muted-foreground text-sm animate-pulse">
+                در حال ذخیره ...
+              </div>
             )
           )}
           {isMobile && step === 1 ? (
