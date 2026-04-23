@@ -33,8 +33,8 @@ const MobileHeader = ({ user }: HeaderProps) => {
           >
             <Avatar size="sm">
               <AvatarImage
-                src={user.avatarUrl || "/avatars/default.png"}
-                alt={user.username}
+                src={user.avatar || "/avatars/default.png"}
+                alt={user.username || "user avatar"}
               />
             </Avatar>
           </Link>

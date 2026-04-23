@@ -1,9 +1,11 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { PostStatus } from "@/generated/prisma/enums";
 import { getUser } from "@/lib/dal";
 import prisma from "@/lib/prisma";
 import { deleteFromStorage } from "@/lib/storage";
+import { postSchema } from "@/lib/validations/post";
 
 export const createPost = async () => {
   try {
@@ -25,6 +27,8 @@ export const createPost = async () => {
       },
     });
 
+    revalidatePath("/create");
+    revalidatePath("/edit");
     return {
       success: true,
       postId: post.id,
@@ -74,6 +78,8 @@ export const deletePost = async (postId: string) => {
       where: { id: postId },
     });
 
+    revalidatePath("/create");
+    revalidatePath("/edit");
     return {
       success: true,
       message: "پست حذف شد",
@@ -93,9 +99,18 @@ export const updatePost = async (
     title?: string;
     description?: string;
     url?: string;
-    status: PostStatus;
   },
+  status: PostStatus,
 ) => {
+  const result = postSchema.safeParse({ ...data });
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: "تمامی مقادیر به مورد نیاز ثبت نشده است",
+    };
+  }
+
   try {
     const user = await getUser();
     if (!user) {
@@ -120,14 +135,16 @@ export const updatePost = async (
     await prisma.post.update({
       where: { id: postId },
       data: {
-        title: data.title || undefined,
-        description: data.description || undefined,
-        url: data.url || undefined,
-        status: data.status,
+        title: result.data.title,
+        description: result.data.description,
+        url: result.data.url,
+        status: status,
         updatedAt: new Date(),
       },
     });
 
+    revalidatePath("/create");
+    revalidatePath("/edit");
     return {
       success: true,
       message: "پست ذخیره شد",

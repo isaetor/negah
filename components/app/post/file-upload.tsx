@@ -5,9 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteMedia, UploadMedia } from "@/actions/media";
 import { createPost, deletePost } from "@/actions/post";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { getMediaDimensions } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 type MediaItem = {
   id: string;
@@ -24,7 +23,7 @@ interface FileUploadProps {
   onChange: (val: MediaItem[]) => void;
   postId: string | null;
   setPostId: (postId: string | null) => void;
-  /** در حالت ویرایش: قبل از حذف آخرین تصویر برای تأیید حذف کل پست */
+  onUploadingChange?: (isUploading: boolean) => void;
   isEdit?: boolean;
   onBeforeRemoveLastMedia?: () => Promise<boolean>;
   onAfterEntirePostDeleted?: () => void;
@@ -64,6 +63,7 @@ export default function FileUpload({
   onChange,
   postId,
   setPostId,
+  onUploadingChange,
   isEdit = false,
   onBeforeRemoveLastMedia,
   onAfterEntirePostDeleted,
@@ -75,7 +75,6 @@ export default function FileUpload({
 
   const [selectedIndex, setSelectedIndex] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [uploadingTempIds, setUploadingTempIds] = useState<Set<string>>(
     new Set(),
@@ -86,15 +85,11 @@ export default function FileUpload({
 
   //? تنظیم ارتفاع بر اساس اندازه صفحه
   const [height, setHeight] = useState(0);
-  const isMobile = useIsMobile();
+
   const calculateHeight = useCallback(() => {
     if (typeof window === "undefined") return 0;
-    let calculatedH = window.innerHeight - 209;
-    if (isMobile) {
-      calculatedH = calculatedH - 56;
-    }
-    setHeight(calculatedH);
-  }, [isMobile]);
+    setHeight(window.innerHeight - 265);
+  }, []);
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
@@ -102,6 +97,10 @@ export default function FileUpload({
   useEffect(() => {
     selectedIndexRef.current = selectedIndex;
   }, [selectedIndex]);
+
+  useEffect(() => {
+    onUploadingChange?.(uploadingTempIds.size > 0);
+  }, [onUploadingChange, uploadingTempIds]);
 
   const stopUploadingFor = useCallback((id: string) => {
     setUploadingTempIds((prev) => removeIdFromSet(prev, id));
@@ -168,7 +167,6 @@ export default function FileUpload({
   const handleAddFiles = useCallback(
     async (files: FileList | null) => {
       if (!files) return;
-      setIsUploading(true);
       const newFiles = Array.from(files);
       const existingImageCount = valueRef.current.length;
 
@@ -309,7 +307,6 @@ export default function FileUpload({
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      setIsUploading(false);
     },
     [
       onChange,
@@ -602,7 +599,7 @@ export default function FileUpload({
     >
       {isDragging && (
         <div className="absolute inset-x-0 inset-y-2 bg-accent border-3 border-blue-500 border-dashed rounded-2xl flex flex-col items-center justify-center z-10">
-          <Upload className="w-10 h-10 text-blue-500 mb-2" />
+          <Upload className="size-14 text-blue-500 mb-4" />
           <p className="text-lg font-semibold text-gray-700">
             فایل خود را اینجا رها کنید
           </p>
@@ -659,10 +656,17 @@ export default function FileUpload({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`${selected ? "size-28 min-w-28" : "size-full"} bg-accent dark:bg-input/30 cursor-pointer border border-dashed rounded-2xl flex flex-col items-center justify-center`}
+          className={`${selected ? "size-28 min-w-28" : "size-full"} bg-accent dark:bg-input/30 cursor-pointer border-2 border-dashed rounded-2xl flex flex-col items-center justify-center`}
         >
-          {isUploading ? (
-            <Loader2 className="animate-spin" />
+          {value.length === 0 ? (
+            <div className="flex flex-col gap-1 items-center text-muted-foreground">
+              <ImagePlus className="size-14 mb-4  " />
+              <p className="font-bold text-lg">تصویر خود را انتخاب کنید</p>
+              <p className="text-sm text-center px-3 leading-relaxed max-w-xs">
+                حداکثر {MAX_IMAGES} تصویر و هر تصویر تا {MAX_FILE_SIZE_MB}{" "}
+                مگابایت
+              </p>
+            </div>
           ) : (
             <ImagePlus className="text-muted-foreground" />
           )}

@@ -1,18 +1,13 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import type { User } from "@/lib/dal";
 import DesktopHeader from "./desktop-header";
 import MobileHeader from "./mobile-header";
 
 export type HeaderProps = {
-  user: {
-    avatarUrl: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-  };
+  user: User | null;
 };
-
 const Header = ({ user }: HeaderProps) => {
   const isMobile = useIsMobile();
 

@@ -15,6 +15,16 @@ export const verifySession = async () => {
   return { isAuth: true, phoneNumber: session.phoneNumber, role: session.role };
 };
 
+export type User = {
+  id: string;
+  phoneNumber: string;
+  username: string | null;
+  avatar: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  role: "USER" | "ADMIN";
+};
+
 export const getUser = async () => {
   const session = await verifySession();
 
@@ -23,8 +33,17 @@ export const getUser = async () => {
   try {
     const user = await prisma.user.findUnique({
       where: { phoneNumber: session.phoneNumber },
+      select: {
+        id: true,
+        phoneNumber: true,
+        username: true,
+        avatar: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
     });
-    return user;
+    return user as User | null;
   } catch (error) {
     console.log("Failed to fetch user. error: ", error);
     return null;

@@ -1,6 +1,9 @@
 "use client";
 import { BadgeCheckIcon, BellIcon, LogOut } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import LogoutDialog from "@/components/auth/logout-dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,22 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type Props = {
-  user: {
-    avatarUrl: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-  };
-};
-
-import Link from "next/link";
-import LogoutDialog from "@/components/auth/logout-dialog";
-import { Button } from "@/components/ui/button";
+import type { User } from "@/lib/dal";
 import { Avatar, AvatarImage } from "../../ui/avatar";
 
-const UserDropdownMenu = ({ user }: Props) => {
+type UserDropdownMenuProps = {
+  user: User;
+};
+
+const UserDropdownMenu = ({ user }: UserDropdownMenuProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,8 +29,8 @@ const UserDropdownMenu = ({ user }: Props) => {
           <Button variant="ghost" size="icon">
             <Avatar>
               <AvatarImage
-                src={user.avatarUrl || "/avatars/default.png"}
-                alt={user.username}
+                src={user.avatar || "/avatars/default.png"}
+                alt={user.username || "user avatar"}
               />
             </Avatar>
           </Button>

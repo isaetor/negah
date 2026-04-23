@@ -1,4 +1,4 @@
-import CreateMediaForm from "@/components/app/create-media-form";
+import CreateMediaForm from "@/components/app/post/create-media-form";
 
 const EditPostPage = async ({
   params,
