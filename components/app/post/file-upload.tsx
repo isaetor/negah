@@ -7,6 +7,14 @@ import { DeleteMedia, UploadMedia } from "@/actions/media";
 import { createPost, deletePosts } from "@/actions/post";
 import { getMediaDimensions } from "@/lib/utils";
 import { Button } from "../../ui/button";
+import {
+  ResponsiveAlertDialog,
+  ResponsiveAlertDialogContent,
+  ResponsiveAlertDialogDescription,
+  ResponsiveAlertDialogFooter,
+  ResponsiveAlertDialogHeader,
+  ResponsiveAlertDialogTitle,
+} from "../../ui/custom/responsive-alert-dialog";
 
 type MediaItem = {
   id: string;
@@ -25,7 +33,6 @@ interface FileUploadProps {
   setPostId: (postId: string | null) => void;
   onUploadingChange?: (isUploading: boolean) => void;
   isEdit?: boolean;
-  onBeforeRemoveLastMedia?: () => Promise<boolean>;
   onAfterEntirePostDeleted?: () => void;
 }
 const MAX_IMAGES = 20;
@@ -65,7 +72,6 @@ export default function FileUpload({
   setPostId,
   onUploadingChange,
   isEdit = false,
-  onBeforeRemoveLastMedia,
   onAfterEntirePostDeleted,
 }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,8 +86,13 @@ export default function FileUpload({
     new Set(),
   );
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [removeLastDialogOpen, setRemoveLastDialogOpen] = useState(false);
+  const [isDeletingLastPost, setIsDeletingLastPost] = useState(false);
   const valueRef = useRef(value);
   const selectedIndexRef = useRef(selectedIndex);
+  const removeLastConfirmResolver = useRef<((ok: boolean) => void) | null>(
+    null,
+  );
 
   //? تنظیم ارتفاع بر اساس اندازه صفحه
   const [height, setHeight] = useState(0);
@@ -90,6 +101,7 @@ export default function FileUpload({
     if (typeof window === "undefined") return 0;
     setHeight(window.innerHeight - 265);
   }, []);
+
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
@@ -129,6 +141,24 @@ export default function FileUpload({
     },
     [onChange],
   );
+
+  const onBeforeRemoveLastMedia = useCallback(() => {
+    return new Promise<boolean>((resolve) => {
+      removeLastConfirmResolver.current = resolve;
+      setRemoveLastDialogOpen(true);
+    });
+  }, []);
+
+  const resolveRemoveLastDialog = useCallback((confirmed: boolean) => {
+    const resolver = removeLastConfirmResolver.current;
+    removeLastConfirmResolver.current = null;
+    if (confirmed) {
+      setIsDeletingLastPost(true);
+    } else {
+      setRemoveLastDialogOpen(false);
+    }
+    resolver?.(confirmed);
+  }, []);
 
   const patchMediaById = useCallback(
     (
@@ -371,15 +401,22 @@ export default function FileUpload({
       startDeletingFor(id);
 
       try {
-        if (isLast && isEdit && onBeforeRemoveLastMedia) {
+        if (isLast && isEdit) {
           const confirmed = await onBeforeRemoveLastMedia();
           if (!confirmed) return;
-          if (!currentPostId) return;
+          if (!currentPostId) {
+            setIsDeletingLastPost(false);
+            setRemoveLastDialogOpen(false);
+            return;
+          }
           const del = await deletePosts([currentPostId]);
           if (!del.success) {
+            setIsDeletingLastPost(false);
             toast.error(del.message || "خطا در حذف پست");
             return;
           }
+          setIsDeletingLastPost(false);
+          setRemoveLastDialogOpen(false);
           onChange([]);
           setPostId(null);
           setSelectedIndex("");
@@ -423,6 +460,7 @@ export default function FileUpload({
           );
         }
       } catch (error) {
+        setIsDeletingLastPost(false);
         console.error(error);
         toast.error("خطا در حذف رسانه. لطفا دوباره تلاش کنید.");
       } finally {
@@ -434,9 +472,9 @@ export default function FileUpload({
       onChange,
       postId,
       isEdit,
-      onBeforeRemoveLastMedia,
       onAfterEntirePostDeleted,
       setPostId,
+      onBeforeRemoveLastMedia,
       revokeBlobUrl,
       startDeletingFor,
       stopDeletingFor,
@@ -610,7 +648,7 @@ export default function FileUpload({
       )}
       {selected && (
         <div
-          className="relative mx-2 border rounded-2xl overflow-hidden flex items-center justify-center bg-accent dark:bg-input/30"
+          className="relative border mx-4 rounded-2xl overflow-hidden flex items-center justify-center bg-accent dark:bg-input/30"
           style={{ height }}
         >
           {selected.type === "IMAGE" ? (
@@ -644,86 +682,91 @@ export default function FileUpload({
       )}
 
       {/* لیست تصاویر */}
-      <section
-        ref={horizontalScrollContainerRef}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        aria-label="Media thumbnails gallery"
-        className={`${selected ? "h-28" : "h-full"} flex gap-2 items-center max-w-svw px-2 overflow-x-auto scroll-none select-none`}
-      >
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className={`${selected ? "size-28 min-w-28" : "size-full"} bg-accent dark:bg-input/30 cursor-pointer border-2 border-dashed rounded-2xl flex flex-col items-center justify-center`}
+      <div className={`${value.length === 0 && "h-full"} relative`}>
+        <section
+          ref={horizontalScrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          aria-label="Media thumbnails gallery"
+          className={`${selected ? "h-28" : "h-full"} flex gap-2 items-center px-4 max-w-svw overflow-x-auto scroll-none`}
         >
-          {value.length === 0 ? (
-            <div className="flex flex-col gap-1 items-center text-muted-foreground">
-              <ImagePlus className="size-14 mb-4  " />
-              <p className="font-bold text-lg">تصویر خود را انتخاب کنید</p>
-              <p className="text-sm text-center px-3 leading-relaxed max-w-xs">
-                حداکثر {MAX_IMAGES} تصویر و هر تصویر تا {MAX_FILE_SIZE_MB}{" "}
-                مگابایت
-              </p>
-            </div>
-          ) : (
-            <ImagePlus className="text-muted-foreground" />
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={`${value.length === 0 ? "size-full" : "size-28 min-w-28"} bg-accent dark:bg-input/30 cursor-pointer border-2 border-dashed rounded-2xl flex flex-col items-center justify-center`}
+          >
+            {value.length === 0 ? (
+              <div className="flex flex-col gap-1 items-center text-muted-foreground">
+                <ImagePlus className="size-14 mb-4  " />
+                <p className="font-bold text-lg">تصویر خود را انتخاب کنید</p>
+                <p className="text-sm text-center px-3 leading-relaxed max-w-xs">
+                  حداکثر {MAX_IMAGES} تصویر و هر تصویر تا {MAX_FILE_SIZE_MB}{" "}
+                  مگابایت
+                </p>
+              </div>
+            ) : (
+              <ImagePlus className="text-muted-foreground" />
+            )}
+          </button>
 
-        {value.map((item) => {
-          const isItemUploading = uploadingTempIds.has(item.id);
-          const isItemDeleting = deletingIds.has(item.id);
+          {value.map((item) => {
+            const isItemUploading = uploadingTempIds.has(item.id);
+            const isItemDeleting = deletingIds.has(item.id);
 
-          return (
-            <div key={item.id} className="relative">
-              <button
-                type="button"
-                onClick={() => setSelectedIndex(item.id)}
-                className={`size-28 cursor-pointer rounded-2xl overflow-hidden border align-top
-              ${selectedIndex === item.id && "border-blue-500 border-2"}`}
-              >
-                {item.type === "IMAGE" ? (
-                  <Image
-                    src={item.url}
-                    width={80}
-                    height={80}
-                    alt="preview"
-                    priority
-                    draggable="false"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <video
-                    src={item.url}
-                    draggable="false"
-                    className="object-cover w-full h-full"
-                  >
-                    <track kind="captions"></track>
-                  </video>
-                )}
-              </button>
-              {!isItemUploading && (
-                <Button
+            return (
+              <div key={item.id} className="relative">
+                <button
                   type="button"
-                  onClick={() => handleRemove(item.id)}
-                  className="absolute top-1 left-1"
-                  size="icon-xs"
-                  variant="secondary"
-                  disabled={isItemDeleting}
+                  onClick={() => setSelectedIndex(item.id)}
+                  className={`size-28 cursor-pointer rounded-2xl overflow-hidden border align-top
+              ${selectedIndex === item.id && "border-blue-500 border-2"}`}
                 >
-                  {isItemDeleting ? (
-                    <Loader2 className="animate-spin" />
+                  {item.type === "IMAGE" ? (
+                    <Image
+                      src={item.url}
+                      width={80}
+                      height={80}
+                      alt="preview"
+                      priority
+                      draggable="false"
+                      className="object-cover w-full h-full"
+                    />
                   ) : (
-                    <Trash />
+                    <video
+                      src={item.url}
+                      draggable="false"
+                      className="object-cover w-full h-full"
+                    >
+                      <track kind="captions"></track>
+                    </video>
                   )}
-                </Button>
-              )}
-            </div>
-          );
-        })}
-      </section>
+                </button>
+                {!isItemUploading && (
+                  <Button
+                    type="button"
+                    onClick={() => handleRemove(item.id)}
+                    className="absolute top-1 left-1"
+                    size="icon-xs"
+                    variant="secondary"
+                    disabled={isItemDeleting}
+                  >
+                    {isItemDeleting ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Trash />
+                    )}
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </section>
+
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-linear-90 from-background"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-6 -bg-linear-90 from-background"></div>
+      </div>
 
       <input
         type="file"
@@ -733,6 +776,61 @@ export default function FileUpload({
         onChange={handleFileInputChange}
         className="hidden"
       />
+      <ResponsiveAlertDialog
+        open={removeLastDialogOpen}
+        onOpenChange={(open) => {
+          if (isDeletingLastPost && !open) return;
+          setRemoveLastDialogOpen(open);
+          if (!open) {
+            queueMicrotask(() => {
+              if (removeLastConfirmResolver.current) {
+                removeLastConfirmResolver.current(false);
+                removeLastConfirmResolver.current = null;
+              }
+            });
+          }
+        }}
+      >
+        <ResponsiveAlertDialogContent
+          size="default"
+          className="max-w-md"
+          onEscapeKeyDown={(event) => {
+            if (isDeletingLastPost) event.preventDefault();
+          }}
+        >
+          <ResponsiveAlertDialogHeader>
+            <ResponsiveAlertDialogTitle>
+              حذف آخرین تصویر
+            </ResponsiveAlertDialogTitle>
+            <ResponsiveAlertDialogDescription>
+              با حذف آخرین تصویر، این پست به طور کامل حذف می شود. آیا ادامه می
+              دهید؟
+            </ResponsiveAlertDialogDescription>
+          </ResponsiveAlertDialogHeader>
+          <ResponsiveAlertDialogFooter>
+            <Button
+              type="button"
+              variant="outlineDestructive"
+              size="sm"
+              className="col-span-2"
+              disabled={isDeletingLastPost}
+              onClick={() => resolveRemoveLastDialog(true)}
+            >
+              {isDeletingLastPost ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  در حال حذف پست
+                </>
+              ) : (
+                <>
+                  <Trash />
+                  حذف پست
+                </>
+              )}
+            </Button>
+          </ResponsiveAlertDialogFooter>
+        </ResponsiveAlertDialogContent>
+      </ResponsiveAlertDialog>
     </section>
   );
 }

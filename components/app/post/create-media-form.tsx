@@ -6,65 +6,48 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Trash,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Controller,
-  type SubmitHandler,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { getPostById, updatePost } from "@/actions/post";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { PostStatus } from "@/generated/prisma/enums";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePostForm } from "@/lib/contexts/post-form-context";
 import {
   type CreatePostInput,
   createPostSchema,
   type EditPostInput,
 } from "@/lib/validations/post";
 import { Button } from "../../ui/button";
-import {
-  ResponsiveAlertDialog,
-  ResponsiveAlertDialogContent,
-  ResponsiveAlertDialogDescription,
-  ResponsiveAlertDialogFooter,
-  ResponsiveAlertDialogHeader,
-  ResponsiveAlertDialogTitle,
-} from "../../ui/custom/responsive-alert-dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../../ui/field";
-import { Input } from "../../ui/input";
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
 } from "../../ui/input-group";
 import FileUpload from "./file-upload";
 
-const MIN_SAVING_INDICATOR_MS = 1500;
-
-function autosavePayloadKey(data: CreatePostInput, status: PostStatus) {
-  return JSON.stringify({
-    title: data.title ?? "",
-    description: data.description ?? "",
-    url: data.url ?? "",
-    status,
-  });
-}
+const MIN_AUTOSAVE_INDICATOR_MS = 1000;
 
 const CreateMediaForm = ({ id }: { id?: string }) => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasPendingUploads, setHasPendingUploads] = useState(false);
-  const [postId, setPostId] = useState(id || null);
-  const [postStatus, setPostStatus] = useState<PostStatus>(PostStatus.DRAFT);
-  const [removeLastDialogOpen, setRemoveLastDialogOpen] = useState(false);
-  const isMobile = useIsMobile(1024);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const {
+    postId,
+    setPostId,
+    postStatus,
+    setPostStatus,
+    isUploading,
+    setIsUploading,
+    setFormData,
+  } = usePostForm();
+  const isMobile = useIsMobile();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -80,28 +63,26 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
     },
     mode: "onChange",
   });
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveIndicatorTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const autoSaveInFlightRef = useRef(false);
+  const media = form.watch("media");
+  const hasMedia = media.length > 0;
+  const watchedTitle = form.watch("title");
+  const watchedDescription = form.watch("description");
+  const watchedUrl = form.watch("url");
 
-  const watchedValues = useWatch({ control: form.control });
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savingHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savingStartedAtRef = useRef<number | null>(null);
-  const savingBusyRef = useRef(false);
-  const savingIndicatorRunRef = useRef(0);
-  const lastSavedSnapshotRef = useRef<string | null>(null);
-  const prevPostIdRef = useRef<string | null>(postId);
-  const removeLastConfirmResolver = useRef<((ok: boolean) => void) | null>(
-    null,
-  );
-  const isMountedRef = useRef(true);
-
+  //! Initialize postId from route param
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
+    if (id) {
+      setPostId(id);
+    }
+  }, [id, setPostId]);
+  //! end
 
-  // Load post data for editing
+  //! Load post data for editing
   useEffect(() => {
     if (!isEdit || !postId) {
       setIsLoading(false);
@@ -124,11 +105,9 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
             url: post.url || "",
             media: post.media,
           };
+          console.log(initialValues);
           form.reset(initialValues);
-          lastSavedSnapshotRef.current = autosavePayloadKey(
-            initialValues,
-            post.status ?? PostStatus.DRAFT,
-          );
+          setFormData(initialValues);
         } else {
           toast.error(message || "خطا در بارگذاری پست");
           router.push("/");
@@ -148,9 +127,11 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
     return () => {
       cancelled = true;
     };
-  }, [postId, isEdit, form, router]);
+  }, [postId, isEdit, form, router, setPostStatus, setFormData]);
+  //! end Load post data
 
-  const handleAutoSave = useCallback(
+  //! auto save
+  const handleSavePost = useCallback(
     async (
       data: EditPostInput,
       status: PostStatus,
@@ -179,150 +160,120 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
         if (toastOnError) toast.error(result.message);
         return { success: false, message: result.message };
       } catch (error) {
-        console.error("Auto-save failed:", error);
-        if (toastOnError) toast.error("خطا در ذخیره خودکار");
-        return { success: false, message: "خطا در ذخیره خودکار" };
+        console.error("Save failed:", error);
+        if (toastOnError) toast.error("خطا در ذخیره پست");
+        return { success: false, message: "خطا در ذخیره پست" };
       }
     },
     [postId],
   );
-
-  const onBeforeRemoveLastMedia = useCallback(() => {
-    return new Promise<boolean>((resolve) => {
-      removeLastConfirmResolver.current = resolve;
-      setRemoveLastDialogOpen(true);
-    });
-  }, []);
-
-  const resolveRemoveLastDialog = useCallback((confirmed: boolean) => {
-    const r = removeLastConfirmResolver.current;
-    removeLastConfirmResolver.current = null;
-    setRemoveLastDialogOpen(false);
-    r?.(confirmed);
-  }, []);
-
   useEffect(() => {
-    if (prevPostIdRef.current !== postId) {
-      lastSavedSnapshotRef.current = null;
-      prevPostIdRef.current = postId;
-    }
-
-    if (!postId) return;
-
-    const media = watchedValues?.media ?? [];
-    if (media.length === 0) return;
-
-    const snapshot = autosavePayloadKey(
-      watchedValues as CreatePostInput,
-      postStatus,
-    );
-
-    if (snapshot === lastSavedSnapshotRef.current) return;
-
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    debounceTimerRef.current = setTimeout(async () => {
-      debounceTimerRef.current = null;
-
-      const releaseSavingUiIfIdle = () => {
-        if (savingBusyRef.current) return;
-        if (savingHideTimerRef.current) {
-          clearTimeout(savingHideTimerRef.current);
-          savingHideTimerRef.current = null;
-        }
-        if (isMountedRef.current) setIsSaving(false);
-      };
-
-      let showedSaving = false;
-      let indicatorRun = 0;
-      try {
-        const current = form.getValues();
-        const mediaNow = current.media ?? [];
-        if (mediaNow.length === 0) {
-          releaseSavingUiIfIdle();
-          return;
-        }
-
-        const keyNow = autosavePayloadKey(current, postStatus);
-        if (keyNow === lastSavedSnapshotRef.current) {
-          releaseSavingUiIfIdle();
-          return;
-        }
-
-        const isValidForAutoSave = await form.trigger(undefined, {
-          shouldFocus: false,
-        });
-        if (!isValidForAutoSave) {
-          releaseSavingUiIfIdle();
-          return;
-        }
-
-        if (savingBusyRef.current) {
-          return;
-        }
-
-        if (savingHideTimerRef.current) {
-          clearTimeout(savingHideTimerRef.current);
-          savingHideTimerRef.current = null;
-        }
-
-        savingBusyRef.current = true;
-        indicatorRun = ++savingIndicatorRunRef.current;
-        savingStartedAtRef.current = Date.now();
-        setIsSaving(true);
-        showedSaving = true;
-        const { success } = await handleAutoSave(current, postStatus, {
-          quiet: true,
-        });
-        if (success) {
-          lastSavedSnapshotRef.current = keyNow;
-          form.reset(current, { keepDirty: false });
-        }
-      } catch (error) {
-        console.error("Auto-save error:", error);
-      } finally {
-        savingBusyRef.current = false;
-        if (showedSaving) {
-          const started = savingStartedAtRef.current;
-          savingStartedAtRef.current = null;
-          const elapsed =
-            started != null ? Date.now() - started : MIN_SAVING_INDICATOR_MS;
-          const wait = Math.max(0, MIN_SAVING_INDICATOR_MS - elapsed);
-          const runForThisSave = indicatorRun;
-          savingHideTimerRef.current = setTimeout(() => {
-            savingHideTimerRef.current = null;
-            if (!isMountedRef.current) return;
-            if (savingIndicatorRunRef.current !== runForThisSave) return;
-            setIsSaving(false);
-          }, wait);
-        }
-      }
-    }, 1500);
-
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-        debounceTimerRef.current = null;
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
+      if (autoSaveIndicatorTimeoutRef.current) {
+        clearTimeout(autoSaveIndicatorTimeoutRef.current);
+        autoSaveIndicatorTimeoutRef.current = null;
       }
     };
-  }, [watchedValues, postId, postStatus, form, handleAutoSave]);
+  }, []);
+  useEffect(() => {
+    if (
+      watchedTitle === undefined &&
+      watchedDescription === undefined &&
+      watchedUrl === undefined
+    ) {
+      return;
+    }
 
+    if (!postId || !hasMedia || isUploading || isLoading || isAutoSaving)
+      return;
+    if (!form.formState.isDirty || !form.formState.isValid) return;
+
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      if (autoSaveInFlightRef.current) return;
+      autoSaveInFlightRef.current = true;
+      setIsAutoSaving(true);
+      const startedAt = Date.now();
+
+      try {
+        const currentValues = form.getValues();
+        const { success } = await handleSavePost(
+          {
+            title: currentValues.title,
+            description: currentValues.description,
+            url: currentValues.url,
+          },
+          postStatus,
+          { quiet: true, toastOnError: false },
+        );
+
+        if (success) {
+          form.reset(currentValues, {
+            keepValues: true,
+            keepDirty: false,
+          });
+          setFormData(currentValues);
+        }
+      } finally {
+        autoSaveInFlightRef.current = false;
+        const elapsed = Date.now() - startedAt;
+        const remaining = Math.max(0, MIN_AUTOSAVE_INDICATOR_MS - elapsed);
+        if (autoSaveIndicatorTimeoutRef.current) {
+          clearTimeout(autoSaveIndicatorTimeoutRef.current);
+        }
+        autoSaveIndicatorTimeoutRef.current = setTimeout(() => {
+          setIsAutoSaving(false);
+          autoSaveIndicatorTimeoutRef.current = null;
+        }, remaining);
+      }
+    }, 900);
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
+    };
+  }, [
+    form,
+    handleSavePost,
+    hasMedia,
+    isAutoSaving,
+    isLoading,
+    isUploading,
+    postId,
+    postStatus,
+    setFormData,
+    watchedDescription,
+    watchedTitle,
+    watchedUrl,
+  ]);
   const onSubmit: SubmitHandler<EditPostInput> = async (data) => {
-    if (hasPendingUploads) {
+    if (isUploading) {
       toast.error("لطفا تا پایان آپلود همه تصاویر صبر کنید");
+      return;
+    }
+    if (!hasMedia) {
       return;
     }
     setIsLoading(true);
     try {
-      await handleAutoSave(data, postStatus, { quiet: false });
+      await handleSavePost(data, postStatus, { quiet: false });
+      setFormData(data);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+  //! end auto save
 
   return (
     <form
@@ -345,13 +296,13 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
             }}
           >
             <ChevronRight className="size-6 md:size-4" />
-            <span className="hidden lg:block">بازگشت</span>
+            <span className="hidden md:block">بازگشت</span>
           </Button>
           <SidebarTrigger className="-ml-1 rotate-180" />
         </div>
       </div>
       <div
-        className={`${!isMobile && "lg:grid-cols-2"} max-w-6xl w-full h-full max-h-[calc(100vh-112px)] mx-auto grid px-2`}
+        className={`${!isMobile && "md:grid-cols-2"} max-w-6xl w-full h-full max-h-[calc(100vh-112px)] mx-auto grid`}
       >
         {((isMobile && step === 1) || !isMobile) && (
           <Controller
@@ -363,11 +314,8 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                   {...field}
                   postId={postId}
                   setPostId={setPostId}
-                  onUploadingChange={setHasPendingUploads}
+                  onUploadingChange={setIsUploading}
                   isEdit={isEdit}
-                  onBeforeRemoveLastMedia={
-                    isEdit ? onBeforeRemoveLastMedia : undefined
-                  }
                   onAfterEntirePostDeleted={
                     isEdit ? () => router.push(`/${callbackUrl}`) : undefined
                   }
@@ -378,7 +326,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
         )}
         {((isMobile && step === 2) || !isMobile) && (
           <div
-            className={`${step === 1 ? "hidden md:flex" : "flex"} h-full overflow-auto flex-col justify-between md:justify-start gap-4 px-2 py-4`}
+            className={`${step === 1 ? "hidden md:flex" : "flex"} h-full overflow-auto flex-col justify-between md:justify-start gap-4 px-4 md:pr-0 py-4`}
           >
             <FieldGroup>
               <Controller
@@ -389,13 +337,14 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                   return (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>عنوان پست</FieldLabel>
-                      <InputGroup>
+                      <InputGroup disabled={!hasMedia}>
                         <InputGroupTextarea
                           {...field}
                           aria-invalid={fieldState.invalid}
                           placeholder="به همه بگویید پست شما در مورد چیست"
                           maxLength={100}
                           className="max-h-20"
+                          disabled={!hasMedia}
                         />
                         <InputGroupAddon
                           align="block-end"
@@ -433,12 +382,13 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                   return (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>توضیحات</FieldLabel>
-                      <InputGroup>
+                      <InputGroup disabled={!hasMedia}>
                         <InputGroupTextarea
                           {...field}
                           aria-invalid={fieldState.invalid}
                           maxLength={800}
-                          className="max-h-200 min-h-40"
+                          className="max-h-80 min-h-40"
+                          disabled={!hasMedia}
                         />
                         <InputGroupAddon
                           align="block-end"
@@ -475,12 +425,20 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel>آدرس سایت</FieldLabel>
-                    <Input
-                      dir="ltr"
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="https://example.com"
-                    />
+                    <InputGroup dir="ltr" disabled={!hasMedia}>
+                      <InputGroupInput
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="example.com"
+                        className="pl-0! -mb-0.5"
+                        disabled={!hasMedia}
+                      />
+                      <InputGroupAddon>
+                        <InputGroupText className="-mb-0.5">
+                          https://
+                        </InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -494,27 +452,22 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
 
       <div className="shrink-0 border-t h-14 flex items-center z-20 px-4 bg-background">
         <div className="mx-auto max-w-6xl w-full flex justify-end items-center gap-6">
-          {!isMobile && hasPendingUploads ? (
+          {!isMobile && isUploading ? (
             <div className="text-muted-foreground text-sm animate-pulse">
               در حال بارگزاری تصاویر ...
             </div>
-          ) : (
-            !isMobile &&
-            isSaving && (
-              <div className="text-muted-foreground text-sm animate-pulse">
-                در حال ذخیره ...
-              </div>
-            )
-          )}
+          ) : !isMobile && isAutoSaving ? (
+            <div className="text-muted-foreground text-sm animate-pulse">
+              در حال ذخیره ...
+            </div>
+          ) : null}
           {isMobile && step === 1 ? (
             <Button
               onClick={() => setStep(2)}
               className="w-full"
-              disabled={
-                form.getValues("media").length === 0 || hasPendingUploads
-              }
+              disabled={form.getValues("media").length === 0 || isUploading}
             >
-              {hasPendingUploads ? (
+              {isUploading ? (
                 <>
                   <Loader2 className="animate-spin" />
                   در حال بارگزاری تصاویر
@@ -533,11 +486,12 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
               disabled={
                 !form.formState.isValid ||
                 isLoading ||
-                (isMobile && isSaving) ||
-                hasPendingUploads
+                isUploading ||
+                !hasMedia ||
+                isAutoSaving
               }
               onClick={async () => {
-                if (hasPendingUploads) {
+                if (isUploading) {
                   toast.error("لطفا تا پایان آپلود همه تصاویر صبر کنید");
                   return;
                 }
@@ -546,7 +500,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                   setPostStatus(PostStatus.PUBLISHED);
                   const publishedValues = form.getValues();
                   const { success, message: saveMessage } =
-                    await handleAutoSave(
+                    await handleSavePost(
                       publishedValues,
                       PostStatus.PUBLISHED,
                       { quiet: true, toastOnError: false },
@@ -556,11 +510,9 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                     toast.error(saveMessage || "خطا در انتشار پست");
                     return;
                   }
-                  lastSavedSnapshotRef.current = autosavePayloadKey(
-                    publishedValues,
-                    PostStatus.PUBLISHED,
-                  );
                   form.reset(publishedValues, { keepDirty: false });
+                  // Update form data in context
+                  setFormData(publishedValues);
                   toast.success("پست منتشر شد");
                 } catch (error) {
                   console.error(error);
@@ -571,12 +523,12 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                 }
               }}
             >
-              {isMobile && hasPendingUploads ? (
+              {isMobile && isUploading ? (
                 <>
                   <Loader2 className="animate-spin" />
                   در حال بارگزاری تصاویر
                 </>
-              ) : isMobile && isSaving ? (
+              ) : isMobile && isAutoSaving ? (
                 <>
                   <Loader2 className="animate-spin" />
                   در حال ذخیره
@@ -594,46 +546,6 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
           )}
         </div>
       </div>
-      <ResponsiveAlertDialog
-        open={removeLastDialogOpen}
-        onOpenChange={(open) => {
-          setRemoveLastDialogOpen(open);
-          if (!open) {
-            queueMicrotask(() => {
-              if (removeLastConfirmResolver.current) {
-                removeLastConfirmResolver.current(false);
-                removeLastConfirmResolver.current = null;
-              }
-            });
-          }
-        }}
-      >
-        <ResponsiveAlertDialogContent size="default" className="max-w-md">
-          <ResponsiveAlertDialogHeader>
-            <ResponsiveAlertDialogTitle>
-              حذف آخرین تصویر
-            </ResponsiveAlertDialogTitle>
-            <ResponsiveAlertDialogDescription>
-              با حذف آخرین تصویر، این پست به‌طور کامل حذف می‌شود. آیا ادامه
-              می‌دهید؟
-            </ResponsiveAlertDialogDescription>
-          </ResponsiveAlertDialogHeader>
-          <ResponsiveAlertDialogFooter>
-            <Button
-              type="button"
-              variant="outlineDestructive"
-              size="sm"
-              className="col-span-2"
-              onClick={() => {
-                resolveRemoveLastDialog(true);
-              }}
-            >
-              <Trash />
-              حذف پست
-            </Button>
-          </ResponsiveAlertDialogFooter>
-        </ResponsiveAlertDialogContent>
-      </ResponsiveAlertDialog>
     </form>
   );
 };

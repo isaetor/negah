@@ -3,15 +3,21 @@ import { z } from "zod";
 export const postSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(1, "عنوان الزامی است")
-    .max(100, "عنوان نمیتواند بیشتر از 100 کارکتر باشد")
-    .optional()
-    .or(z.literal("")),
+    .max(100, "عنوان نمیتواند بیشتر از 100 کارکتر باشد"),
   description: z
     .string()
     .max(800, "توظیحات نمیتواند بیشتر از 800 کارکتر باشد")
     .optional(),
-  url: z.url("آدرس وب‌سایت باید یک URL معتبر باشد").optional().or(z.literal("")),
+  url: z
+    .string()
+    .regex(/^[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/, {
+      message:
+        "لطفاً یک آدرس معتبر وارد کنید (مثال: google.com یا sub.example.com/page)",
+    })
+    .optional()
+    .or(z.literal("")),
   // board: z.string().min(1, "برد را انتخاب کنید"),
   // tags: z.array(z.string()).optional(),
 });

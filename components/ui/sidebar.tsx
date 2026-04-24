@@ -58,13 +58,15 @@ function SidebarProvider({
   className,
   style,
   children,
+  mobileBreakpoint,
   ...props
 }: React.ComponentProps<"div"> & {
   defaultOpen?: boolean;
   open?: boolean;
+  mobileBreakpoint: number;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(mobileBreakpoint);
   const [openMobile, setOpenMobile] = React.useState(false);
 
   // This is the internal state of the sidebar.

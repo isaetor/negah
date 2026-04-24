@@ -1,6 +1,7 @@
 "use server";
 
 import path from "node:path";
+import { revalidatePath } from "next/cache";
 import { getUser } from "@/lib/dal";
 import prisma from "@/lib/prisma";
 import { deleteFromStorage, uploadToStorage } from "@/lib/storage";
@@ -94,6 +95,8 @@ export const UploadMedia = async (
       },
     });
 
+    revalidatePath("/create");
+    revalidatePath("/edit");
     return {
       success: true,
       media: {

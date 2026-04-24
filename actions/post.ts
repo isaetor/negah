@@ -27,8 +27,6 @@ export const createPost = async () => {
       },
     });
 
-    revalidatePath("/create");
-    revalidatePath("/edit");
     return {
       success: true,
       postId: post.id,
@@ -112,7 +110,7 @@ export const deletePosts = async (postIds: string[]) => {
 export const updatePost = async (
   postId: string,
   data: {
-    title?: string;
+    title: string;
     description?: string;
     url?: string;
   },
