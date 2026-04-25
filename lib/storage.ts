@@ -10,7 +10,7 @@ const S3_SECRET_KEY = process.env.S3_SECRET_KEY;
 const S3_BUCKET = process.env.S3_BUCKET;
 const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL;
 
-const s3 = new S3Client({
+export const s3 = new S3Client({
   endpoint: S3_ENDPOINT,
   region: "default",
   credentials: {
