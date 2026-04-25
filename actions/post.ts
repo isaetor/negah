@@ -185,13 +185,15 @@ export const updatePost = async (
   }
 };
 
-export const getPosts = async () => {
+export const getPosts = async (page: number = 1, limit: number = 12) => {
   try {
     const posts = await prisma.post.findMany({
       where: {
         status: "PUBLISHED",
       },
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
       select: {
         id: true,
         title: true,

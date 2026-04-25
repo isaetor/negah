@@ -81,3 +81,12 @@ export function debounce<Args extends unknown[], Return>(
     timeoutId = setTimeout(() => func(...args), delay);
   };
 }
+
+export function generateRandomArray(count = 10, min = 200, max = 500) {
+  const arr = [];
+  for (let i = 0; i < count; i++) {
+    const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    arr.push(randomNum);
+  }
+  return arr;
+}
