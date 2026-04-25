@@ -160,25 +160,6 @@ export default function FileUpload({
     resolver?.(confirmed);
   }, []);
 
-  const patchMediaById = useCallback(
-    (
-      id: string,
-      patch: Partial<Pick<MediaItem, "fileSize" | "order">>,
-    ): MediaItem[] | null => {
-      const currentMedia = valueRef.current;
-      if (!currentMedia.some((item) => item.id === id)) {
-        return null;
-      }
-
-      const nextMedia = currentMedia.map((item) =>
-        item.id === id ? { ...item, ...patch } : item,
-      );
-      onChange(nextMedia);
-      return nextMedia;
-    },
-    [onChange],
-  );
-
   useEffect(() => {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
@@ -301,15 +282,36 @@ export default function FileUpload({
               );
 
               if (uploadResult.success && uploadResult.media) {
-                // ذخیره نقشه tempId -> serverId
-                tempToServerIdRef.current.set(tempId, uploadResult.media.id);
+                // Replace the temp item with the server item
+                const currentMedia = valueRef.current;
+                const newMedia = currentMedia.map((item) =>
+                  item.id === tempId
+                    ? {
+                        id: uploadResult.media.id,
+                        url: uploadResult.media.url,
+                        type: uploadResult.media.type,
+                        width: uploadResult.media.width,
+                        height: uploadResult.media.height,
+                        fileSize: uploadResult.media.fileSize,
+                        order: uploadResult.media.order,
+                      }
+                    : item,
+                );
+                onChange(newMedia);
 
-                // فقط metadata را بروزرسانی کن، ID و URL محلی را ثابت نگاه دار
-                patchMediaById(tempId, {
-                  fileSize: uploadResult.media.fileSize,
-                  order: uploadResult.media.order,
-                });
+                // Update selectedIndex if it was the tempId
+                if (selectedIndexRef.current === tempId) {
+                  setSelectedIndex(uploadResult.media.id);
+                }
+
+                // Revoke blob URL
+                revokeBlobUrl(tempId);
+
+                // Remove from uploading
                 stopUploadingFor(tempId);
+
+                // Remove from tempToServerIdRef since no longer needed
+                tempToServerIdRef.current.delete(tempId);
               } else {
                 // حذف preview در صورت شکست اپلود
                 toast.error(uploadResult.message || "خطا در هنگام آپلود رسانه");
@@ -340,7 +342,6 @@ export default function FileUpload({
     },
     [
       onChange,
-      patchMediaById,
       postId,
       removeMediaById,
       revokeBlobUrl,
@@ -673,8 +674,9 @@ export default function FileUpload({
           )}
           {isSelectedUploading && (
             <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-              <span className="rounded-md bg-black/60 px-3 py-1 text-sm text-white">
-                در حال آپلود...
+              <span className="rounded-full bg-black/60 px-2 py-1.5 text-sm text-white flex items-center gap-1.5">
+                <Loader2 className="animate-spin size-4" />
+                در حال آپلود
               </span>
             </div>
           )}

@@ -255,6 +255,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
     watchedTitle,
     watchedUrl,
   ]);
+
   const onSubmit: SubmitHandler<EditPostInput> = async (data) => {
     if (isUploading) {
       toast.error("لطفا تا پایان آپلود همه تصاویر صبر کنید");
@@ -280,8 +281,8 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col justify-between h-full"
     >
-      <div className="shrink-0 border-b bg-background">
-        <div className="max-w-6xl w-full mx-auto flex justify-between items-center h-14 px-4">
+      <div className="shrink-0 border-b bg-background h-14 relative">
+        <div className="max-w-6xl w-full mx-auto flex justify-between items-center h-full px-4">
           <Button
             type="button"
             variant={"ghost"}
@@ -298,6 +299,9 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
             <ChevronRight className="size-6 md:size-4" />
             <span className="hidden md:block">بازگشت</span>
           </Button>
+          <h1 className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 font-bold">
+            {isEdit ? "ویرایش پست" : "افزودن پست"}
+          </h1>
           <SidebarTrigger className="-ml-1 rotate-180" />
         </div>
       </div>
@@ -514,6 +518,9 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                   // Update form data in context
                   setFormData(publishedValues);
                   toast.success("پست منتشر شد");
+                  if (postId) {
+                    router.push(`/post/${postId}`);
+                  }
                 } catch (error) {
                   console.error(error);
                   setPostStatus(PostStatus.DRAFT);
@@ -540,8 +547,32 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
               )}
             </Button>
           ) : (
-            <Button className="w-full md:w-48" disabled>
-              منتشر شده
+            <Button
+              type="submit"
+              className="w-full md:w-48"
+              disabled={
+                !form.formState.isValid ||
+                isLoading ||
+                isUploading ||
+                !hasMedia ||
+                isAutoSaving
+              }
+            >
+              {isMobile && isUploading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  در حال بارگزاری تصاویر
+                </>
+              ) : isMobile && isAutoSaving ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  در حال ذخیره
+                </>
+              ) : isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                "ذخیره"
+              )}
             </Button>
           )}
         </div>

@@ -30,6 +30,7 @@ const PostLayout = async ({
         orderBy: { createdAt: "asc" },
         take: 1,
       },
+      createdAt: true,
     },
   });
 
@@ -38,7 +39,7 @@ const PostLayout = async ({
       <SidebarProvider
         mobileBreakpoint={1024}
         defaultOpen={posts.length > 0}
-        style={{ "--sidebar-width": "20rem" } as React.CSSProperties}
+        style={{ "--sidebar-width": "22rem" } as React.CSSProperties}
       >
         <SidebarInset>{children}</SidebarInset>
         <PostSidebar posts={posts} />

@@ -188,6 +188,9 @@ export const updatePost = async (
 export const getPosts = async () => {
   try {
     const posts = await prisma.post.findMany({
+      where: {
+        status: "PUBLISHED",
+      },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
