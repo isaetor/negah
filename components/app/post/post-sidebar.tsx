@@ -59,7 +59,7 @@ export function PostSidebar({
   }[];
 }) {
   const router = useRouter();
-  const { postId, isUploading } = usePostForm();
+  const { postId, isUploading, resetForm } = usePostForm();
   const [isDeleted, setIsDeleted] = useState(false);
   const [open, setOpen] = useState(false);
   const [deleteIds, setDeleteIds] = useState<string[]>([]);
@@ -90,6 +90,7 @@ export function PostSidebar({
   };
 
   const handleCreatePostClick = () => {
+    resetForm();
     router.push(`/create?new=${Date.now()}`);
   };
 
@@ -105,8 +106,9 @@ export function PostSidebar({
       setSelectedIds((prev) => prev.filter((id) => !deleteIds.includes(id)));
       setDeleteIds([]);
       setOpen(false);
-      router.push("/create");
-      router.refresh();
+      if (postId && deleteIds.includes(postId)) {
+        handleCreatePostClick();
+      }
     } catch (error) {
       console.error(error);
       toast.error("خطا در حذف پست. لطفا دوباره تلاش کنید.");
