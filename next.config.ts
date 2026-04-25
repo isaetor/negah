@@ -5,11 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "isaetor.storage.iran.liara.space",
-      },
-      {
-        protocol: "https",
-        hostname: "negah.hot.ir-central1.arvanstorage.ir",
+        hostname: "negah.s3.ir-thr-at1.arvanstorage.ir",
       },
     ],
   },
