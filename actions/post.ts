@@ -185,7 +185,7 @@ export const updatePost = async (
   }
 };
 
-export const getPosts = async (page: number = 1, limit: number = 12) => {
+export const getPosts = async (page: number = 1, limit: number = 100) => {
   try {
     const posts = await prisma.post.findMany({
       where: {

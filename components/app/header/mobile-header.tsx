@@ -26,6 +26,22 @@ const MobileHeader = ({ user }: HeaderProps) => {
   return (
     <header className="fixed bottom-0 left-0 right-0 border-t bg-background z-50">
       <nav className="flex items-center justify-between px-8">
+        <Link className="size-12 flex items-center justify-center" href={"/"}>
+          <Home />
+        </Link>
+        <Link
+          className="size-12 flex items-center justify-center"
+          href={"/seacrh"}
+        >
+          <Search />
+        </Link>
+        <CreateButton />
+        <Link
+          className="size-12 flex items-center justify-center"
+          href={"/notification"}
+        >
+          <Bell />
+        </Link>
         {user ? (
           <Link
             href={user.username ? `/${user.username}` : "/complete-profile"}
@@ -46,22 +62,6 @@ const MobileHeader = ({ user }: HeaderProps) => {
             <User />
           </Link>
         )}
-        <Link
-          className="size-12 flex items-center justify-center"
-          href={"/notification"}
-        >
-          <Bell />
-        </Link>
-        <CreateButton />
-        <Link
-          className="size-12 flex items-center justify-center"
-          href={"/seacrh"}
-        >
-          <Search />
-        </Link>
-        <Link className="size-12 flex items-center justify-center" href={"/"}>
-          <Home />
-        </Link>
       </nav>
     </header>
   );

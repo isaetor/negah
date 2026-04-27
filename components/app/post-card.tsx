@@ -1,3 +1,4 @@
+"use client";
 import { ArrowUpRight, MoreVertical, Save, Share } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,14 +25,17 @@ const PostCard = ({ post }: Props) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const width = post.media[0]?.width || 200;
   const height = post.media[0]?.height || 600;
+
   return (
     <Link
       href={`/post/${post.id}`}
       key={post.id}
-      className="relative group cursor-pointer rounded-3xl overflow-hidden max-h-130"
+      className="relative group cursor-pointer rounded-3xl overflow-hidden"
     >
       <div className="relative" style={{ aspectRatio: `${width} / ${height}` }}>
-        {!isLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
+        {!isLoaded && (
+          <Skeleton className="absolute inset-0 w-full h-full -z-10" />
+        )}
         <Image
           src={post.media[0]?.url}
           alt={post.title || "Post Image"}
@@ -58,7 +62,7 @@ const PostCard = ({ post }: Props) => {
               </Link>
             </Button>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ms-auto">
             <Button className="border-0" size="icon-sm" variant="outline">
               <Share />
             </Button>
