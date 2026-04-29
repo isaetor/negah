@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.1029.0
+        specifier: ^3.1032.0
         version: 3.1032.0
       '@hookform/resolvers':
         specifier: ^5.2.2
@@ -68,9 +68,6 @@ importers:
       react-hot-toast:
         specifier: ^2.6.0
         version: 2.6.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react-masonry-css:
-        specifier: ^1.0.16
-        version: 1.0.16(react@19.2.4)
       shadcn:
         specifier: ^4.3.0
         version: 4.3.0(@types/node@20.19.39)(typescript@5.9.3)
@@ -3379,11 +3376,6 @@ packages:
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
-
-  react-masonry-css@1.0.16:
-    resolution: {integrity: sha512-KSW0hR2VQmltt/qAa3eXOctQDyOu7+ZBevtKgpNDSzT7k5LA/0XntNa9z9HKCdz3QlxmJHglTZ18e4sX4V8zZQ==}
-    peerDependencies:
-      react: '>=16.0.0'
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -7397,10 +7389,6 @@ snapshots:
       goober: 2.1.18(csstype@3.2.3)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-
-  react-masonry-css@1.0.16(react@19.2.4):
-    dependencies:
-      react: 19.2.4
 
   react-remove-scroll-bar@2.3.8(@types/react@19.2.14)(react@19.2.4):
     dependencies:

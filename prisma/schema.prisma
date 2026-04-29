@@ -99,9 +99,9 @@ model Media {
   type      MediaType // 'IMAGE' or 'VIDEO'
   url       String    @db.Text
   thumbnail String?   @db.Text // For videos
-  width     Int?
-  height    Int?
-  fileSize  Int?
+  width     Int
+  height    Int
+  fileSize  Int
   
   order     Int       @default(0)
   

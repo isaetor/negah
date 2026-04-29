@@ -29,9 +29,9 @@ export const createPostSchema = postSchema.extend({
         id: z.string(),
         url: z.string(),
         type: z.enum(["IMAGE", "VIDEO"]),
-        width: z.number().nullable(),
-        height: z.number().nullable(),
-        fileSize: z.number().nullable(),
+        width: z.number(),
+        height: z.number(),
+        fileSize: z.number(),
         order: z.number(),
       }),
     )

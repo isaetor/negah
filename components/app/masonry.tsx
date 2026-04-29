@@ -8,7 +8,7 @@ const Masonry = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       ref={masonryContainer}
-      className="grid items-start gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+      className="grid items-start gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
     >
       {children}
     </div>

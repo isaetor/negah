@@ -20,9 +20,9 @@ type MediaItem = {
   id: string;
   url: string;
   type: "IMAGE" | "VIDEO";
-  width: number | null;
-  height: number | null;
-  fileSize: number | null;
+  width: number;
+  height: number;
+  fileSize: number;
   order: number;
 };
 
@@ -655,8 +655,8 @@ export default function FileUpload({
           {selected.type === "IMAGE" ? (
             <Image
               src={selected.url}
-              width={selected.width ?? 1}
-              height={selected.height ?? 1}
+              width={selected.width}
+              height={selected.height}
               alt="preview"
               draggable="false"
               className="w-full h-full object-contain"
