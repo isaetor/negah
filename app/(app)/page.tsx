@@ -1,17 +1,20 @@
 import { getPosts } from "@/actions/post";
-import Masonry from "@/components/app/masonry";
-import PostCard from "@/components/app/post-card";
+import PostList from "@/components/app/home/post-list";
 
-export default async function Home() {
-  const posts = await getPosts();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  let page = 1;
+  if (params.page) {
+    page = parseInt(
+      Array.isArray(params.page) ? params.page[0] : params.page,
+      10,
+    );
+  }
+  const posts = await getPosts(page);
 
-  return (
-    <div className="p-4 md:py-0">
-      <Masonry>
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </Masonry>
-    </div>
-  );
+  return <PostList initPosts={posts} initPage={page} />;
 }

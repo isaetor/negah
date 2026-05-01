@@ -8,21 +8,19 @@ import { getAspectRatio } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
-type Props = {
-  post: {
-    media: {
-      url: string;
-      type: MediaType;
-      width: number;
-      height: number;
-    }[];
-    id: string;
-    title: string | null;
-    url: string | null;
-  };
+export type PostProps = {
+  media: {
+    url: string;
+    type: MediaType;
+    width: number;
+    height: number;
+  }[];
+  id: string;
+  title: string | null;
+  url: string | null;
 };
 
-const PostCard = ({ post }: Props) => {
+const PostCard = ({ post }: { post: PostProps }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const width = post.media[0]?.width;
   const height = post.media[0]?.height;
