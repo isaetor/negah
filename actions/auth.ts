@@ -58,7 +58,7 @@ export const SendOtp = async ({ phoneNumber }: { phoneNumber: string }) => {
     }
 
     const code = generateOtp();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     await prisma.otpVerification.create({
       data: {

@@ -330,7 +330,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
         )}
         {((isMobile && step === 2) || !isMobile) && (
           <div
-            className={`${step === 1 ? "hidden md:flex" : "flex"} h-full overflow-auto flex-col justify-between md:justify-start gap-4 px-4 md:pr-0 py-4`}
+            className={`${step === 1 ? "hidden md:flex" : "flex"} h-full overflow-y-auto flex-col justify-between md:justify-start gap-4 p-4`}
           >
             <FieldGroup>
               <Controller

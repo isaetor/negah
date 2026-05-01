@@ -44,7 +44,7 @@ export const ThemeSwitcher = ({ className }: { className?: string }) => {
         )
       }
       className={className}
-      variant={"ghost"}
+      variant={"simple"}
       size="icon-lg"
     >
       {curentTheme && <curentTheme.icon />}

@@ -26,7 +26,7 @@ const Sidebar = ({ user }: SidebarProps) => {
     <div className="fixed md:relative bottom-0 left-0 right-0 h-14 rounded-t-3xl md:rounded-none md:h-screen md:min-w-18 border-t md:border-l p-4 flex md:flex-col md:gap-6 justify-around items-center z-50 bg-background">
       {!isMobile && (
         <Button
-          variant={"ghost"}
+          variant={"simple"}
           size="icon-lg"
           className="hidden md:flex"
           asChild
@@ -36,13 +36,13 @@ const Sidebar = ({ user }: SidebarProps) => {
           </Link>
         </Button>
       )}
-      <Button variant={"ghost"} size="icon-lg" asChild>
+      <Button variant={"simple"} size="icon-lg" asChild>
         <Link href={"/"}>
           <Home />
         </Link>
       </Button>
       <Button
-        variant={"ghost"}
+        variant={"simple"}
         size="icon-lg"
         className="flex md:hidden"
         asChild
@@ -51,12 +51,12 @@ const Sidebar = ({ user }: SidebarProps) => {
           <Search />
         </Link>
       </Button>
-      <Button variant={"ghost"} size="icon-lg" asChild>
+      <Button variant={"simple"} size="icon-lg" asChild>
         <Link href={"/create"}>
           <PlusSquare />
         </Link>
       </Button>
-      <Button variant={"ghost"} size="icon-lg" asChild>
+      <Button variant={"simple"} size="icon-lg" asChild>
         <Link href={"/notifications"}>
           <Bell />
         </Link>
@@ -66,7 +66,7 @@ const Sidebar = ({ user }: SidebarProps) => {
           <div className="h-full hidden md:flex"></div>
           <ThemeSwitcher className="hidden md:flex" />
           <Button
-            variant={"ghost"}
+            variant={"simple"}
             className="hidden md:flex"
             size="icon-lg"
             asChild
@@ -91,7 +91,7 @@ const Sidebar = ({ user }: SidebarProps) => {
         </Link>
       ) : (
         <Button
-          variant={"ghost"}
+          variant={"simple"}
           size="icon-lg"
           className="flex md:hidden"
           asChild

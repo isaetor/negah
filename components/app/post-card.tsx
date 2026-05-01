@@ -32,7 +32,7 @@ const PostCard = ({ post }: Props) => {
     <Link
       href={`/post/${post.id}`}
       key={post.id}
-      className="relative group cursor-pointer rounded-3xl overflow-hidden"
+      className="relative group cursor-pointer rounded-[16px] overflow-hidden"
       style={{
         aspectRatio: aspectRatio.isTall
           ? `${aspectRatio.width}/${aspectRatio.width * 2}`
@@ -45,8 +45,8 @@ const PostCard = ({ post }: Props) => {
       <Image
         src={post.media[0]?.url}
         alt={post.title || "Post Image"}
-        width={width}
-        height={height}
+        width={200}
+        height={600}
         className="w-full h-auto object-cover"
         loading="eager"
         onLoad={() => setIsLoaded(true)}
@@ -61,7 +61,7 @@ const PostCard = ({ post }: Props) => {
         </div>
         <div className="p-2 flex items-center justify-between gap-1">
           {post.url && (
-            <Button className="border-0" size="xs" variant="outline" asChild>
+            <Button className="border-0" size="xs" variant="simple" asChild>
               <Link href={post.url}>
                 <ArrowUpRight />
                 مشاهده سایت
@@ -69,10 +69,10 @@ const PostCard = ({ post }: Props) => {
             </Button>
           )}
           <div className="flex items-center gap-2 ms-auto">
-            <Button className="border-0" size="icon-xs" variant="outline">
+            <Button className="border-0" size="icon-xs" variant="simple">
               <Share />
             </Button>
-            <Button className="border-0" size="icon-xs" variant="outline">
+            <Button className="border-0" size="icon-xs" variant="simple">
               <MoreVertical />
             </Button>
           </div>

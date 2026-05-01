@@ -7,13 +7,14 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from "./models/User";
-export type * from "./models/OtpVerification";
-export type * from "./models/Post";
-export type * from "./models/Media";
+
+export type * from "./commonInputTypes";
 export type * from "./models/Board";
-export type * from "./models/Save";
-export type * from "./models/PostLike";
 export type * from "./models/Comment";
 export type * from "./models/Follow";
-export type * from "./commonInputTypes";
+export type * from "./models/Media";
+export type * from "./models/OtpVerification";
+export type * from "./models/Post";
+export type * from "./models/PostLike";
+export type * from "./models/Save";
+export type * from "./models/User";
