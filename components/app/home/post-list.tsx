@@ -81,7 +81,7 @@ const PostList = ({ initPosts, initPage }: PostListProps) => {
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
-        <div ref={observerRef} className="-mt-4" />
+        <div ref={observerRef} />
 
         {mounted && <PostsSkeleton />}
       </Masonry>

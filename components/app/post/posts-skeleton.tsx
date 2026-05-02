@@ -16,7 +16,7 @@ const PostsSkeleton = () => {
   return randomHeights.map(({ id, height }) => (
     <Skeleton
       key={id}
-      className="rounded-3xl"
+      className="rounded-[16px]"
       style={{ height }}
       data-span="1"
     />
