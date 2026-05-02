@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { DeleteMedia, UploadMedia } from "@/actions/media";
 import { createPost, deletePosts } from "@/actions/post";
 import { getMediaDimensions } from "@/lib/utils";
-import { Button } from "../../ui/button";
+import { Button } from "../../../ui/button";
 import {
   ResponsiveAlertDialog,
   ResponsiveAlertDialogContent,
@@ -14,7 +14,7 @@ import {
   ResponsiveAlertDialogFooter,
   ResponsiveAlertDialogHeader,
   ResponsiveAlertDialogTitle,
-} from "../../ui/custom/responsive-alert-dialog";
+} from "../../../ui/custom/responsive-alert-dialog";
 
 type MediaItem = {
   id: string;

@@ -21,15 +21,15 @@ import {
   createPostSchema,
   type EditPostInput,
 } from "@/lib/validations/post";
-import { Button } from "../../ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../../ui/field";
+import { Button } from "../../../ui/button";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../../../ui/field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
-} from "../../ui/input-group";
+} from "../../../ui/input-group";
 import FileUpload from "./file-upload";
 
 const MIN_AUTOSAVE_INDICATOR_MS = 1000;

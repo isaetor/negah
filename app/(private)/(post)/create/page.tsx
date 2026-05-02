@@ -1,4 +1,4 @@
-import CreateMediaForm from "@/components/app/post/create-media-form";
+import CreateMediaForm from "@/components/app/post/create/create-media-form";
 
 const CreatePage = async ({
   searchParams,

@@ -5,91 +5,86 @@ import {
   type CSSProperties,
   cloneElement,
   isValidElement,
+  type ReactElement,
   type ReactNode,
   useCallback,
   useEffect,
   useRef,
 } from "react";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface MasonryProps {
   children: ReactNode;
-  /** Number of columns per breakpoint (RTL-aware) */
+  /**
+   * تعداد ستون‌ها در هر breakpoint.
+   * پیش‌فرض: sm=2, md=3, lg=5, xl=6, 2xl=7
+   */
   columns?: Partial<Record<"sm" | "md" | "lg" | "xl" | "2xl", number>>;
-  /** Gap between items in px */
+  /** فاصله بین آیتم‌ها به پیکسل */
   gap?: number;
-  /** Extra class names on the wrapper */
+  /** کلاس‌های اضافی روی wrapper */
   className?: string;
 }
 
 // ─── Column config ────────────────────────────────────────────────────────────
 
 const DEFAULT_COLUMNS = {
-  sm: 2, // < 640
-  md: 3, // 640–1023
-  lg: 4, // 1024–1279
-  xl: 5, // 1280–1535
-  "2xl": 7, // ≥ 1536
+  sm: 2, // < 640px
+  md: 3, // 640–1023px
+  lg: 5, // 1024–1279px
+  xl: 6, // 1280–1535px
+  "2xl": 7, // ≥ 1536px
 } as const;
 
-/** Resolves how many columns to use for the current container width */
-function getColumnCount(
-  width: number,
-  columns: Partial<Record<string, number>>,
-): number {
+type ColumnsMap = Partial<Record<string, number>>;
+
+function getColumnCount(width: number, columns: ColumnsMap): number {
   const c = { ...DEFAULT_COLUMNS, ...columns };
   if (width < 640) return c.sm ?? 2;
   if (width < 1024) return c.md ?? 3;
-  if (width < 1280) return c.lg ?? 4;
-  if (width < 1536) return c.xl ?? 5;
+  if (width < 1280) return c.lg ?? 5;
+  if (width < 1536) return c.xl ?? 6;
   return c["2xl"] ?? 7;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Shared layout algorithm ──────────────────────────────────────────────────
+// این تابع هم در SSR (بدون DOM) و هم در client استفاده می‌شود.
+// در SSR ارتفاع از data-ssr-height می‌آید.
+// در client از offsetHeight المان می‌آید.
 
-/** Returns column-span of an item (reads data-span attribute) */
-function getSpan(el: Element, maxCols: number): number {
-  const raw = (el as HTMLElement).dataset.span;
-  if (!raw) return 1;
-  const n = parseInt(raw, 10);
-  return Number.isNaN(n) ? 1 : Math.min(n, maxCols);
+interface LayoutItem {
+  span: number;
+  height: number;
 }
 
-// ─── Core layout engine ───────────────────────────────────────────────────────
+interface Position {
+  top: number;
+  left: number;
+  width: number;
+}
 
-/**
- * Computes absolute positions for each item.
- * The algorithm places items RTL (right → left), choosing the rightmost
- * available gap that fits the item's span.
- *
- * Returns an array of { top, left, width } for each child element.
- */
-function computeLayout(
-  container: HTMLElement,
+function computePositions(
+  items: LayoutItem[],
+  containerWidth: number,
   gap: number,
   colCount: number,
-): Array<{ top: number; left: number; width: number }> {
-  const totalWidth = container.clientWidth;
-  const colWidth = (totalWidth - gap * (colCount - 1)) / colCount;
-
-  // colHeights[i] = current filled height of column i (0 = rightmost in RTL)
+): { positions: Position[]; totalHeight: number } {
+  const colWidth = (containerWidth - gap * (colCount - 1)) / colCount;
   const colHeights = new Array<number>(colCount).fill(0);
 
-  // Pre-compute X position of each column (RTL: col 0 is on the right)
-  const colLeft = Array.from({ length: colCount }, (_, i) => {
-    // col 0 → right edge, col (colCount-1) → left edge
-    return (colCount - 1 - i) * (colWidth + gap);
-  });
+  // RTL: ستون 0 = راست‌ترین، ستون (colCount-1) = چپ‌ترین
+  const colLeft = Array.from(
+    { length: colCount },
+    (_, i) => (colCount - 1 - i) * (colWidth + gap),
+  );
 
-  const items = Array.from(container.children) as HTMLElement[];
-  const positions: Array<{ top: number; left: number; width: number }> = [];
+  const positions: Position[] = [];
 
   for (const item of items) {
-    const span = Math.min(getSpan(item, colCount), colCount);
+    const span = Math.min(item.span, colCount);
 
-    // Find the best starting column (rightmost) where span columns fit
-    // and the max height of those columns is minimised.
+    // بهترین ستون = جایی که حداکثر ارتفاع ستون‌های پوشش‌داده‌شده کمینه باشد
     let bestCol = 0;
     let bestMaxH = Infinity;
 
@@ -101,47 +96,74 @@ function computeLayout(
       }
     }
 
-    const itemTop = bestMaxH; // start just below the tallest in range
-    const itemLeft = colLeft[bestCol + span - 1]; // leftmost pixel of span (RTL)
+    const itemTop = bestMaxH;
+    // در RTL: چپ‌ترین پیکسل span = ستون (bestCol + span - 1)
+    const itemLeft = colLeft[bestCol + span - 1];
     const itemWidth = colWidth * span + gap * (span - 1);
-    const itemHeight = item.offsetHeight;
 
     positions.push({ top: itemTop, left: itemLeft, width: itemWidth });
 
-    // Update heights for occupied columns
     for (let c = bestCol; c < bestCol + span; c++) {
-      colHeights[c] = itemTop + itemHeight + gap;
+      colHeights[c] = itemTop + item.height + gap;
     }
   }
 
-  // Set container height
-  container.style.height = `${Math.max(...colHeights)}px`;
-
-  return positions;
+  return {
+    positions,
+    totalHeight: Math.max(...colHeights),
+  };
 }
 
-/** Applies computed positions to DOM elements */
-function applyPositions(
+// ─── DOM helpers ──────────────────────────────────────────────────────────────
+
+function getSpanFromEl(el: HTMLElement, maxCols: number): number {
+  const raw = el.dataset.span;
+  if (!raw) return 1;
+  const n = parseInt(raw, 10);
+  return Number.isNaN(n) ? 1 : Math.min(n, maxCols);
+}
+
+// ─── Client layout (با DOM) ───────────────────────────────────────────────────
+
+function runClientLayout(
   container: HTMLElement,
-  positions: Array<{ top: number; left: number; width: number }>,
-) {
-  const items = Array.from(container.children) as HTMLElement[];
-  items.forEach((item, i) => {
+  gap: number,
+  columns: ColumnsMap,
+): void {
+  const colCount = getColumnCount(container.clientWidth, columns);
+  const els = Array.from(container.children) as HTMLElement[];
+
+  const items: LayoutItem[] = els.map((el) => ({
+    span: getSpanFromEl(el, colCount),
+    height: el.offsetHeight,
+  }));
+
+  const { positions, totalHeight } = computePositions(
+    items,
+    container.clientWidth,
+    gap,
+    colCount,
+  );
+
+  container.style.height = `${totalHeight}px`;
+
+  els.forEach((el, i) => {
     const p = positions[i];
     if (!p) return;
-    item.style.position = "absolute";
-    item.style.top = `${p.top}px`;
-    item.style.left = `${p.left}px`;
-    item.style.width = `${p.width}px`;
-    // Trigger CSS transition (only on items that are already laid out)
-    if (!item.dataset.laid) {
-      item.style.opacity = "0";
-      item.style.transform = "translateY(8px)";
-      // Force a reflow so the initial state registers
-      void item.offsetHeight;
-      item.style.opacity = "1";
-      item.style.transform = "translateY(0)";
-      item.dataset.laid = "1";
+
+    el.style.position = "absolute";
+    el.style.top = `${p.top}px`;
+    el.style.left = `${p.left}px`;
+    el.style.width = `${p.width}px`;
+
+    // انیمیشن فقط برای آیتم‌های تازه که هنوز laid نشده‌اند
+    if (!el.dataset.laid) {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(10px)";
+      void el.offsetHeight; // force reflow
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0)";
+      el.dataset.laid = "1";
     }
   });
 }
@@ -155,31 +177,22 @@ export default function Masonry({
   className = "",
 }: MasonryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const colCountRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // ── Layout runner ──────────────────────────────────────────────────────────
-
-  const runLayout = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const cols = getColumnCount(el.clientWidth, columns);
-    colCountRef.current = cols;
-
-    const positions = computeLayout(el, gap, cols);
-    applyPositions(el, positions);
-  }, [columns, gap]);
+  // ── scheduleLayout ────────────────────────────────────────────────────────
 
   const scheduleLayout = useCallback(() => {
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    const mergedCols = { ...DEFAULT_COLUMNS, ...columns };
+
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
-      runLayout();
+      const el = containerRef.current;
+      if (el) runClientLayout(el, gap, mergedCols);
     });
-  }, [runLayout]);
+  }, [gap, columns]);
 
-  // ── Initial layout + resize ────────────────────────────────────────────────
+  // ── 1. اولین layout + resize روی container ───────────────────────────────
 
   useEffect(() => {
     const el = containerRef.current;
@@ -189,29 +202,69 @@ export default function Masonry({
 
     const ro = new ResizeObserver(scheduleLayout);
     ro.observe(el);
+
     return () => {
       ro.disconnect();
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
   }, [scheduleLayout]);
 
-  // ── Re-layout when children change (infinite scroll) ──────────────────────
+  // ── 2. تغییر تعداد children (infinite scroll) ────────────────────────────
 
   const childCount = Children.count(children);
   const prevCountRef = useRef(childCount);
 
   useEffect(() => {
-    if (childCount !== prevCountRef.current) {
-      prevCountRef.current = childCount;
-
-      // Wait for new children to mount and have measurable heights
-      // Two frames is enough: first renders DOM, second paints.
-      requestAnimationFrame(() => requestAnimationFrame(scheduleLayout));
-    }
+    if (childCount === prevCountRef.current) return;
+    prevCountRef.current = childCount;
+    // دو فریم صبر می‌کنیم تا DOM جدید mount و paint شود
+    requestAnimationFrame(() => requestAnimationFrame(scheduleLayout));
   }, [childCount, scheduleLayout]);
 
-  // ── Image-load triggers ────────────────────────────────────────────────────
-  // Images that load after mount change item heights — relayout.
+  // ── 3. تغییر ارتفاع هر آیتم ─────────────────────────────────────────────
+  //
+  // ResizeObserver روی هر child مستقیم container:
+  // وقتی محتوای یک آیتم expand/collapse می‌شود (مثلاً accordion، لود تصویر،
+  // تغییر متن)، ارتفاع آن تغییر می‌کند و کل layout بازمحاسبه می‌شود.
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const itemRO = new ResizeObserver((entries) => {
+      // فقط اگر ارتفاع (block size) واقعاً تغییر کرده relayout کن
+      const changed = entries.some(
+        (e) => (e.borderBoxSize?.[0]?.blockSize ?? 0) > 0,
+      );
+      if (changed) scheduleLayout();
+    });
+
+    const observeChildren = () => {
+      itemRO.disconnect();
+      Array.from(el.children).forEach((child) => {
+        itemRO.observe(child);
+      });
+    };
+
+    observeChildren();
+
+    // وقتی child جدید اضافه شد (Suspense resolve یا infinite scroll)
+    // observer را به‌روز کن
+    const mo = new MutationObserver(() => {
+      observeChildren();
+      requestAnimationFrame(() => requestAnimationFrame(scheduleLayout));
+    });
+
+    mo.observe(el, { childList: true, subtree: false });
+
+    return () => {
+      itemRO.disconnect();
+      mo.disconnect();
+    };
+  }, [scheduleLayout]);
+
+  // ── 4. تصاویری که بعد از mount لود می‌شوند ──────────────────────────────
+  // (redundant با ResizeObserver اما برای مرورگرهایی که دیر fire می‌کنند)
 
   useEffect(() => {
     const el = containerRef.current;
@@ -230,87 +283,25 @@ export default function Masonry({
     };
   });
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const mo = new MutationObserver(() => {
-      // هر بار DOM داخل container تغییر کرد (مثلاً Suspense resolve شد)
-      requestAnimationFrame(() => requestAnimationFrame(scheduleLayout));
-    });
-
-    mo.observe(el, { childList: true, subtree: true });
-    return () => mo.disconnect();
-  }, [scheduleLayout]);
-
-  // ── SSR Fallback styles ────────────────────────────────────────────────────
-  // On the server and before hydration, we use CSS columns for a reasonable
-  // initial render (no JS needed). The JS engine overrides this on mount.
-
-  const ssrCols = { ...DEFAULT_COLUMNS, ...columns };
-  const ssrStyle: CSSProperties = {
-    columnCount: ssrCols["2xl"],
-    columnGap: `${gap}px`,
-    direction: "rtl",
-  };
+  const childArray = Children.toArray(children).filter(
+    isValidElement,
+  ) as ReactElement<Record<string, unknown>>[];
 
   return (
-    <>
-      {/* SSR / no-JS stylesheet */}
-      <style>{`
-        .masonry-ssr {
-          position: relative;
-          column-count: ${ssrCols.sm};
-          column-gap: ${gap}px;
-          direction: rtl;
-        }
-        @media (min-width: 640px) {
-          .masonry-ssr { column-count: ${ssrCols.md}; }
-        }
-        @media (min-width: 1024px) {
-          .masonry-ssr { column-count: ${ssrCols.lg}; }
-        }
-        @media (min-width: 1280px) {
-          .masonry-ssr { column-count: ${ssrCols.xl}; }
-        }
-        @media (min-width: 1536px) {
-          .masonry-ssr { column-count: ${ssrCols["2xl"]}; }
-        }
+    <div
+      ref={containerRef}
+      className={`relative *:transition-all *:duration-200 *:ease-in grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 ${className}`}
+    >
+      {childArray.map((child, i) => {
+        const existingStyle = (child.props.style ?? {}) as CSSProperties;
 
-        /* JS-active: switch to absolute positioning mode */
-        .masonry-js {
-          position: relative !important;
-          column-count: unset !important;
-        }
-        .masonry-js > * {
-          /* Transition for new items appearing */
-          transition: opacity 0.25s ease, transform 0.25s ease;
-          /* break-inside to prevent SSR column splits */
-          break-inside: avoid;
-        }
-      `}</style>
-
-      <div
-        ref={containerRef}
-        className={`masonry-ssr ${className}`}
-        style={ssrStyle}
-      >
-        {Children.map(children, (child) => {
-          if (!isValidElement(child)) return child;
-          return cloneElement(
-            child as React.ReactElement<{ style?: CSSProperties }>,
-            {
-              style: {
-                ...(child.props as { style?: CSSProperties }).style,
-                // SSR: make each item a block inside CSS columns
-                display: "block",
-                marginBottom: `${gap}px`,
-                breakInside: "avoid",
-              },
-            },
-          );
-        })}
-      </div>
-    </>
+        return cloneElement(child, {
+          key: child.key ?? i,
+          style: {
+            ...existingStyle,
+          } satisfies CSSProperties,
+        });
+      })}
+    </div>
   );
 }

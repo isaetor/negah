@@ -23,7 +23,7 @@ const Header = ({ user }: HeaderProps) => {
 
   return (
     <div className="p-4 items-center gap-4 hidden md:flex">
-      <InputGroup className="bg-accent">
+      <InputGroup>
         <InputGroupInput placeholder="جستجو ..." />
         <InputGroupAddon>
           <Search />

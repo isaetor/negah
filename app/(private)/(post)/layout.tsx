@@ -1,4 +1,4 @@
-import { PostSidebar } from "@/components/app/post/post-sidebar";
+import { PostSidebar } from "@/components/app/post/create/post-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PostStatus } from "@/generated/prisma/enums";
 import { PostFormProvider } from "@/lib/contexts/post-form-context";

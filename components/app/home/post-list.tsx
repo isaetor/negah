@@ -7,9 +7,9 @@ import { getPosts } from "@/actions/post";
 import { Button } from "@/components/ui/button";
 import { useMounted } from "@/hooks/use-mounted";
 import Masonry from "../masonry";
+import type { PostProps } from "../post/post-card";
+import PostCard from "../post/post-card";
 import PostsSkeleton from "../post/posts-skeleton";
-import type { PostProps } from "../post-card";
-import PostCard from "../post-card";
 
 type PostListProps = {
   initPosts: PostProps[];

@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { MediaType } from "@/generated/prisma/browser";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
@@ -9,7 +8,8 @@ import {
   ResponsiveDialogFooter,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
-} from "../ui/custom/responsive-dialog";
+} from "@/components/ui/custom/responsive-dialog";
+import type { MediaType } from "@/generated/prisma/browser";
 
 type Props = {
   open: boolean;
