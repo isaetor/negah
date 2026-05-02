@@ -2,13 +2,12 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getPosts } from "@/actions/post";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useMounted } from "@/hooks/use-mounted";
-import { generateRandomArray } from "@/lib/utils";
 import Masonry from "../masonry";
+import PostsSkeleton from "../post/posts-skeleton";
 import type { PostProps } from "../post-card";
 import PostCard from "../post-card";
 
@@ -24,7 +23,6 @@ const PostList = ({ initPosts, initPage }: PostListProps) => {
   const [hasMore, setHasMore] = useState(initPosts.length >= 12);
   const observerRef = useRef<HTMLDivElement>(null);
 
-  const randomHeights = useMemo(() => generateRandomArray(20, 200, 500), []);
   const mounted = useMounted();
 
   const loadPosts = useCallback(
@@ -79,20 +77,13 @@ const PostList = ({ initPosts, initPage }: PostListProps) => {
 
   return (
     <div className="p-4 md:py-0">
-      <Masonry>
+      <Masonry gap={12}>
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
-        <div ref={observerRef} className="h-20" />
+        <div ref={observerRef} className="-mt-4" />
 
-        {mounted &&
-          randomHeights.map((height, i) => (
-            <Skeleton
-              key={height}
-              className={`rounded-3xl`}
-              style={{ height }}
-            />
-          ))}
+        {mounted && <PostsSkeleton />}
       </Masonry>
       {!mounted && (
         <div className="flex items-center gap-4 justify-center py-4">
