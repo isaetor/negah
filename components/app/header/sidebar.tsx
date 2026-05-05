@@ -47,7 +47,7 @@ const Sidebar = ({ user }: SidebarProps) => {
         className="flex md:hidden"
         asChild
       >
-        <Link href={"/seacrh"}>
+        <Link href={"/search"}>
           <Search />
         </Link>
       </Button>
@@ -57,7 +57,7 @@ const Sidebar = ({ user }: SidebarProps) => {
         </Link>
       </Button>
       <Button variant={"ghost"} size="icon-lg" asChild>
-        <Link href={"/notifications"}>
+        <Link href={"/notification"}>
           <Bell />
         </Link>
       </Button>
