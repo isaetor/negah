@@ -203,7 +203,7 @@ const PostDetail = ({ post, userId }: Props) => {
             </div>
             {isMobile ? (
               <Drawer onOpenChange={setOpen} open={open}>
-                <DrawerContent className="h-[90vh]">
+                <DrawerContent className="h-[90svh]">
                   <DrawerHeader>
                     <DrawerTitle>نظرات کاربران</DrawerTitle>
                   </DrawerHeader>
