@@ -66,7 +66,7 @@ const PostCard = ({ post }: { post: PostProps }) => {
       >
         {post.url && (
           <Button className="border-0" size="xs" variant="simple" asChild>
-            <Link href={post.url}>
+            <Link href={`https://${post.url}`} rel="nofollow" target="_blank">
               <ArrowUpRight />
               مشاهده سایت
             </Link>

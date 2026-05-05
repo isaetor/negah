@@ -4,6 +4,7 @@ import Masonry from "@/components/app/masonry";
 import PostCard from "@/components/app/post/post-card";
 import PostDetail from "@/components/app/post/post-detail";
 import { PostStatus } from "@/generated/prisma/client";
+import { verifySession } from "@/lib/dal";
 import prisma from "@/lib/prisma";
 
 const PostPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -20,11 +21,12 @@ const PostPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     notFound();
   }
   const posts = await getPosts();
+  const user = await verifySession();
 
   return (
     <div className="p-4 md:py-0">
       <Masonry>
-        <PostDetail post={post} />
+        <PostDetail post={post} userId={user?.userId ?? null} />
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}

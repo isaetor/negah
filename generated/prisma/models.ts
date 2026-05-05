@@ -11,6 +11,7 @@
 export type * from "./commonInputTypes";
 export type * from "./models/Board";
 export type * from "./models/Comment";
+export type * from "./models/CommentLike";
 export type * from "./models/Follow";
 export type * from "./models/Media";
 export type * from "./models/OtpVerification";

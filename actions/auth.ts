@@ -180,7 +180,7 @@ export const VerifyOtp = async ({
       },
     });
 
-    await createSession(user.phoneNumber, user.role);
+    await createSession(user.id, user.phoneNumber, user.role);
 
     return {
       success: true,

@@ -423,6 +423,7 @@ export const ModelName = {
   Save: "Save",
   PostLike: "PostLike",
   Comment: "Comment",
+  CommentLike: "CommentLike",
   Follow: "Follow",
 } as const;
 
@@ -454,6 +455,7 @@ export type TypeMap<
       | "save"
       | "postLike"
       | "comment"
+      | "commentLike"
       | "follow";
     txIsolationLevel: TransactionIsolationLevel;
   };
@@ -1066,6 +1068,82 @@ export type TypeMap<
         };
       };
     };
+    CommentLike: {
+      payload: Prisma.$CommentLikePayload<ExtArgs>;
+      fields: Prisma.CommentLikeFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.CommentLikeFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.CommentLikeFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        findFirst: {
+          args: Prisma.CommentLikeFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.CommentLikeFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        findMany: {
+          args: Prisma.CommentLikeFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>[];
+        };
+        create: {
+          args: Prisma.CommentLikeCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        createMany: {
+          args: Prisma.CommentLikeCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.CommentLikeCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>[];
+        };
+        delete: {
+          args: Prisma.CommentLikeDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        update: {
+          args: Prisma.CommentLikeUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        deleteMany: {
+          args: Prisma.CommentLikeDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.CommentLikeUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.CommentLikeUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>[];
+        };
+        upsert: {
+          args: Prisma.CommentLikeUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommentLikePayload>;
+        };
+        aggregate: {
+          args: Prisma.CommentLikeAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommentLike>;
+        };
+        groupBy: {
+          args: Prisma.CommentLikeGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.CommentLikeGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.CommentLikeCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.CommentLikeCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
     Follow: {
       payload: Prisma.$FollowPayload<ExtArgs>;
       fields: Prisma.FollowFieldRefs;
@@ -1284,12 +1362,23 @@ export const CommentScalarFieldEnum = {
   content: "content",
   postId: "postId",
   userId: "userId",
+  parentId: "parentId",
   createdAt: "createdAt",
   updatedAt: "updatedAt",
 } as const;
 
 export type CommentScalarFieldEnum =
   (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum];
+
+export const CommentLikeScalarFieldEnum = {
+  id: "id",
+  commentId: "commentId",
+  userId: "userId",
+  createdAt: "createdAt",
+} as const;
+
+export type CommentLikeScalarFieldEnum =
+  (typeof CommentLikeScalarFieldEnum)[keyof typeof CommentLikeScalarFieldEnum];
 
 export const FollowScalarFieldEnum = {
   id: "id",
@@ -1557,6 +1646,7 @@ export type GlobalOmitConfig = {
   save?: Prisma.SaveOmit;
   postLike?: Prisma.PostLikeOmit;
   comment?: Prisma.CommentOmit;
+  commentLike?: Prisma.CommentLikeOmit;
   follow?: Prisma.FollowOmit;
 };
 

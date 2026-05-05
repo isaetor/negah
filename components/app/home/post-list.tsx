@@ -46,7 +46,7 @@ const PostList = ({ initPosts, initPage }: PostListProps) => {
       } catch (error) {
         console.error("Error loading posts:", error);
       } finally {
-        // setLoadingMore(false);
+        setLoadingMore(false);
       }
     },
     [],
@@ -77,11 +77,15 @@ const PostList = ({ initPosts, initPage }: PostListProps) => {
 
   return (
     <div className="p-4 md:py-0">
-      <Masonry gap={12}>
+      <Masonry gap={16}>
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard
+            data-height={post.media[0].height}
+            key={post.id}
+            post={post}
+          />
         ))}
-        <div ref={observerRef} />
+        <div ref={observerRef} className="h-20" />
 
         {mounted && <PostsSkeleton />}
       </Masonry>

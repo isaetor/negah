@@ -135,12 +135,11 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
     async (
       data: EditPostInput,
       status: PostStatus,
-      options?: { quiet?: boolean; toastOnError?: boolean },
+      options?: { quiet?: boolean },
     ): Promise<{ success: boolean; message?: string }> => {
       if (!postId) return { success: false };
 
       const quiet = options?.quiet ?? false;
-      const toastOnError = options?.toastOnError ?? true;
 
       try {
         const result = await updatePost(
@@ -152,16 +151,15 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
           },
           status,
         );
-
         if (result.success) {
           if (!quiet) toast.success(result.message);
           return { success: true };
         }
-        if (toastOnError) toast.error(result.message);
+        toast.error(result.message);
         return { success: false, message: result.message };
       } catch (error) {
         console.error("Save failed:", error);
-        if (toastOnError) toast.error("خطا در ذخیره پست");
+        toast.error("خطا در ذخیره پست");
         return { success: false, message: "خطا در ذخیره پست" };
       }
     },
@@ -211,7 +209,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
             url: currentValues.url,
           },
           postStatus,
-          { quiet: true, toastOnError: false },
+          { quiet: true },
         );
 
         if (success) {
@@ -507,7 +505,7 @@ const CreateMediaForm = ({ id }: { id?: string }) => {
                     await handleSavePost(
                       publishedValues,
                       PostStatus.PUBLISHED,
-                      { quiet: true, toastOnError: false },
+                      { quiet: true },
                     );
                   if (!success) {
                     setPostStatus(PostStatus.DRAFT);

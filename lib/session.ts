@@ -6,6 +6,7 @@ const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
 
 type SessionPayload = {
+  userId: string;
   phoneNumber: string;
   role: "USER" | "ADMIN";
   expiresAt: Date;
@@ -36,11 +37,12 @@ export async function decrypt(session: string | undefined = "") {
 }
 
 export async function createSession(
+  userId: string,
   phoneNumber: string,
   role: "USER" | "ADMIN",
 ) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ phoneNumber, role, expiresAt });
+  const session = await encrypt({ userId, phoneNumber, role, expiresAt });
   const cookieStore = await cookies();
 
   cookieStore.set("session", session, {

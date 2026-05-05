@@ -159,3 +159,28 @@ export const DeleteMedia = async (mediaId: string) => {
     };
   }
 };
+
+export async function DownloadMedia(url: string) {
+  try {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+
+    const filename = url.split("/").pop() || "download.jpg";
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+
+    // برگرداندن اطلاعات فایل به صورت base64
+    return {
+      success: true,
+      data: base64,
+      filename: filename,
+      contentType: contentType,
+    };
+  } catch (error) {
+    console.error("Download error:", error);
+    return {
+      success: false,
+      message: "Failed to download image",
+    };
+  }
+}

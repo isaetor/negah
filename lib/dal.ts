@@ -8,11 +8,15 @@ export const verifySession = async () => {
   const cookie = (await cookies()).get("session")?.value;
   const session = await decrypt(cookie);
 
-  if (!session || !session?.phoneNumber) {
+  if (!session || !session?.userId || !session?.phoneNumber) {
     return null;
   }
 
-  return { isAuth: true, phoneNumber: session.phoneNumber, role: session.role };
+  return {
+    userId: session.userId,
+    phoneNumber: session.phoneNumber,
+    role: session.role,
+  };
 };
 
 export type User = {

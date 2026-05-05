@@ -239,6 +239,7 @@ export type UserWhereInput = {
   boards?: Prisma.BoardListRelationFilter;
   saves?: Prisma.SaveListRelationFilter;
   postLikes?: Prisma.PostLikeListRelationFilter;
+  commentLikes?: Prisma.CommentLikeListRelationFilter;
   comments?: Prisma.CommentListRelationFilter;
   followers?: Prisma.FollowListRelationFilter;
   following?: Prisma.FollowListRelationFilter;
@@ -262,6 +263,7 @@ export type UserOrderByWithRelationInput = {
   boards?: Prisma.BoardOrderByRelationAggregateInput;
   saves?: Prisma.SaveOrderByRelationAggregateInput;
   postLikes?: Prisma.PostLikeOrderByRelationAggregateInput;
+  commentLikes?: Prisma.CommentLikeOrderByRelationAggregateInput;
   comments?: Prisma.CommentOrderByRelationAggregateInput;
   followers?: Prisma.FollowOrderByRelationAggregateInput;
   following?: Prisma.FollowOrderByRelationAggregateInput;
@@ -289,6 +291,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<
     boards?: Prisma.BoardListRelationFilter;
     saves?: Prisma.SaveListRelationFilter;
     postLikes?: Prisma.PostLikeListRelationFilter;
+    commentLikes?: Prisma.CommentLikeListRelationFilter;
     comments?: Prisma.CommentListRelationFilter;
     followers?: Prisma.FollowListRelationFilter;
     following?: Prisma.FollowListRelationFilter;
@@ -352,6 +355,7 @@ export type UserCreateInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -375,6 +379,7 @@ export type UserUncheckedCreateInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -398,6 +403,7 @@ export type UserUpdateInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -421,6 +427,7 @@ export type UserUncheckedUpdateInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -725,6 +732,32 @@ export type UserUpdateOneRequiredWithoutCommentsNestedInput = {
   >;
 };
 
+export type UserCreateNestedOneWithoutCommentLikesInput = {
+  create?: Prisma.XOR<
+    Prisma.UserCreateWithoutCommentLikesInput,
+    Prisma.UserUncheckedCreateWithoutCommentLikesInput
+  >;
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommentLikesInput;
+  connect?: Prisma.UserWhereUniqueInput;
+};
+
+export type UserUpdateOneRequiredWithoutCommentLikesNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.UserCreateWithoutCommentLikesInput,
+    Prisma.UserUncheckedCreateWithoutCommentLikesInput
+  >;
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommentLikesInput;
+  upsert?: Prisma.UserUpsertWithoutCommentLikesInput;
+  connect?: Prisma.UserWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.UserUpdateToOneWithWhereWithoutCommentLikesInput,
+      Prisma.UserUpdateWithoutCommentLikesInput
+    >,
+    Prisma.UserUncheckedUpdateWithoutCommentLikesInput
+  >;
+};
+
 export type UserCreateNestedOneWithoutFollowersInput = {
   create?: Prisma.XOR<
     Prisma.UserCreateWithoutFollowersInput,
@@ -794,6 +827,7 @@ export type UserCreateWithoutOtpVerificationsInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -816,6 +850,7 @@ export type UserUncheckedCreateWithoutOtpVerificationsInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -866,6 +901,7 @@ export type UserUpdateWithoutOtpVerificationsInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -888,6 +924,7 @@ export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -909,6 +946,7 @@ export type UserCreateWithoutPostsInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -931,6 +969,7 @@ export type UserUncheckedCreateWithoutPostsInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -981,6 +1020,7 @@ export type UserUpdateWithoutPostsInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -1003,6 +1043,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -1025,6 +1066,7 @@ export type UserCreateWithoutMediaInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -1047,6 +1089,7 @@ export type UserUncheckedCreateWithoutMediaInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -1097,6 +1140,7 @@ export type UserUpdateWithoutMediaInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -1119,6 +1163,7 @@ export type UserUncheckedUpdateWithoutMediaInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -1141,6 +1186,7 @@ export type UserCreateWithoutBoardsInput = {
   media?: Prisma.MediaCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -1163,6 +1209,7 @@ export type UserUncheckedCreateWithoutBoardsInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -1213,6 +1260,7 @@ export type UserUpdateWithoutBoardsInput = {
   media?: Prisma.MediaUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -1235,6 +1283,7 @@ export type UserUncheckedUpdateWithoutBoardsInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -1257,6 +1306,7 @@ export type UserCreateWithoutSavesInput = {
   media?: Prisma.MediaCreateNestedManyWithoutUserInput;
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -1279,6 +1329,7 @@ export type UserUncheckedCreateWithoutSavesInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUserInput;
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -1329,6 +1380,7 @@ export type UserUpdateWithoutSavesInput = {
   media?: Prisma.MediaUpdateManyWithoutUserNestedInput;
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -1351,6 +1403,7 @@ export type UserUncheckedUpdateWithoutSavesInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutUserNestedInput;
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -1373,6 +1426,7 @@ export type UserCreateWithoutPostLikesInput = {
   media?: Prisma.MediaCreateNestedManyWithoutUserInput;
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
@@ -1395,6 +1449,7 @@ export type UserUncheckedCreateWithoutPostLikesInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUserInput;
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
@@ -1445,6 +1500,7 @@ export type UserUpdateWithoutPostLikesInput = {
   media?: Prisma.MediaUpdateManyWithoutUserNestedInput;
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
@@ -1467,6 +1523,7 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutUserNestedInput;
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
@@ -1490,6 +1547,7 @@ export type UserCreateWithoutCommentsInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
   otpVerifications?: Prisma.OtpVerificationCreateNestedManyWithoutUserInput;
@@ -1512,6 +1570,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedCreateNestedManyWithoutUserInput;
@@ -1562,6 +1621,7 @@ export type UserUpdateWithoutCommentsInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
   otpVerifications?: Prisma.OtpVerificationUpdateManyWithoutUserNestedInput;
@@ -1584,6 +1644,127 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
+  otpVerifications?: Prisma.OtpVerificationUncheckedUpdateManyWithoutUserNestedInput;
+};
+
+export type UserCreateWithoutCommentLikesInput = {
+  id?: string;
+  phoneNumber: string;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatar?: string | null;
+  bio?: string | null;
+  isVerified?: boolean;
+  role?: $Enums.UserRole;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  posts?: Prisma.PostCreateNestedManyWithoutUserInput;
+  media?: Prisma.MediaCreateNestedManyWithoutUserInput;
+  boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
+  saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
+  postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
+  followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
+  following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
+  otpVerifications?: Prisma.OtpVerificationCreateNestedManyWithoutUserInput;
+};
+
+export type UserUncheckedCreateWithoutCommentLikesInput = {
+  id?: string;
+  phoneNumber: string;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatar?: string | null;
+  bio?: string | null;
+  isVerified?: boolean;
+  role?: $Enums.UserRole;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutUserInput;
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutUserInput;
+  boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
+  saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
+  postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
+  otpVerifications?: Prisma.OtpVerificationUncheckedCreateNestedManyWithoutUserInput;
+};
+
+export type UserCreateOrConnectWithoutCommentLikesInput = {
+  where: Prisma.UserWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.UserCreateWithoutCommentLikesInput,
+    Prisma.UserUncheckedCreateWithoutCommentLikesInput
+  >;
+};
+
+export type UserUpsertWithoutCommentLikesInput = {
+  update: Prisma.XOR<
+    Prisma.UserUpdateWithoutCommentLikesInput,
+    Prisma.UserUncheckedUpdateWithoutCommentLikesInput
+  >;
+  create: Prisma.XOR<
+    Prisma.UserCreateWithoutCommentLikesInput,
+    Prisma.UserUncheckedCreateWithoutCommentLikesInput
+  >;
+  where?: Prisma.UserWhereInput;
+};
+
+export type UserUpdateToOneWithWhereWithoutCommentLikesInput = {
+  where?: Prisma.UserWhereInput;
+  data: Prisma.XOR<
+    Prisma.UserUpdateWithoutCommentLikesInput,
+    Prisma.UserUncheckedUpdateWithoutCommentLikesInput
+  >;
+};
+
+export type UserUpdateWithoutCommentLikesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string;
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  posts?: Prisma.PostUpdateManyWithoutUserNestedInput;
+  media?: Prisma.MediaUpdateManyWithoutUserNestedInput;
+  boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
+  saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
+  postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
+  followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
+  following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
+  otpVerifications?: Prisma.OtpVerificationUpdateManyWithoutUserNestedInput;
+};
+
+export type UserUncheckedUpdateWithoutCommentLikesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string;
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  posts?: Prisma.PostUncheckedUpdateManyWithoutUserNestedInput;
+  media?: Prisma.MediaUncheckedUpdateManyWithoutUserNestedInput;
+  boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
+  saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
+  postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedUpdateManyWithoutUserNestedInput;
@@ -1606,6 +1787,7 @@ export type UserCreateWithoutFollowersInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput;
   otpVerifications?: Prisma.OtpVerificationCreateNestedManyWithoutUserInput;
@@ -1628,6 +1810,7 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedCreateNestedManyWithoutUserInput;
@@ -1658,6 +1841,7 @@ export type UserCreateWithoutFollowingInput = {
   boards?: Prisma.BoardCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput;
   otpVerifications?: Prisma.OtpVerificationCreateNestedManyWithoutUserInput;
@@ -1680,6 +1864,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput;
   saves?: Prisma.SaveUncheckedCreateNestedManyWithoutUserInput;
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput;
+  commentLikes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutUserInput;
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput;
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedCreateNestedManyWithoutUserInput;
@@ -1730,6 +1915,7 @@ export type UserUpdateWithoutFollowersInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput;
   otpVerifications?: Prisma.OtpVerificationUpdateManyWithoutUserNestedInput;
@@ -1752,6 +1938,7 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedUpdateManyWithoutUserNestedInput;
@@ -1794,6 +1981,7 @@ export type UserUpdateWithoutFollowingInput = {
   boards?: Prisma.BoardUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput;
   otpVerifications?: Prisma.OtpVerificationUpdateManyWithoutUserNestedInput;
@@ -1816,6 +2004,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput;
   saves?: Prisma.SaveUncheckedUpdateManyWithoutUserNestedInput;
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput;
+  commentLikes?: Prisma.CommentLikeUncheckedUpdateManyWithoutUserNestedInput;
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput;
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput;
   otpVerifications?: Prisma.OtpVerificationUncheckedUpdateManyWithoutUserNestedInput;
@@ -1831,6 +2020,7 @@ export type UserCountOutputType = {
   boards: number;
   saves: number;
   postLikes: number;
+  commentLikes: number;
   comments: number;
   followers: number;
   following: number;
@@ -1846,6 +2036,7 @@ export type UserCountOutputTypeSelect<
   boards?: boolean | UserCountOutputTypeCountBoardsArgs;
   saves?: boolean | UserCountOutputTypeCountSavesArgs;
   postLikes?: boolean | UserCountOutputTypeCountPostLikesArgs;
+  commentLikes?: boolean | UserCountOutputTypeCountCommentLikesArgs;
   comments?: boolean | UserCountOutputTypeCountCommentsArgs;
   followers?: boolean | UserCountOutputTypeCountFollowersArgs;
   following?: boolean | UserCountOutputTypeCountFollowingArgs;
@@ -1918,6 +2109,16 @@ export type UserCountOutputTypeCountPostLikesArgs<
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountCommentLikesArgs<
+  ExtArgs extends
+    runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.CommentLikeWhereInput;
+};
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountCommentsArgs<
   ExtArgs extends
     runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
@@ -1976,6 +2177,7 @@ export type UserSelect<
     boards?: boolean | Prisma.User$boardsArgs<ExtArgs>;
     saves?: boolean | Prisma.User$savesArgs<ExtArgs>;
     postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>;
+    commentLikes?: boolean | Prisma.User$commentLikesArgs<ExtArgs>;
     comments?: boolean | Prisma.User$commentsArgs<ExtArgs>;
     followers?: boolean | Prisma.User$followersArgs<ExtArgs>;
     following?: boolean | Prisma.User$followingArgs<ExtArgs>;
@@ -2065,6 +2267,7 @@ export type UserInclude<
   boards?: boolean | Prisma.User$boardsArgs<ExtArgs>;
   saves?: boolean | Prisma.User$savesArgs<ExtArgs>;
   postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>;
+  commentLikes?: boolean | Prisma.User$commentLikesArgs<ExtArgs>;
   comments?: boolean | Prisma.User$commentsArgs<ExtArgs>;
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>;
   following?: boolean | Prisma.User$followingArgs<ExtArgs>;
@@ -2091,6 +2294,7 @@ export type $UserPayload<
     boards: Prisma.$BoardPayload<ExtArgs>[];
     saves: Prisma.$SavePayload<ExtArgs>[];
     postLikes: Prisma.$PostLikePayload<ExtArgs>[];
+    commentLikes: Prisma.$CommentLikePayload<ExtArgs>[];
     comments: Prisma.$CommentPayload<ExtArgs>[];
     followers: Prisma.$FollowPayload<ExtArgs>[];
     following: Prisma.$FollowPayload<ExtArgs>[];
@@ -2708,6 +2912,17 @@ export interface Prisma__UserClient<
   ): Prisma.PrismaPromise<
     | runtime.Types.Result.GetResult<
         Prisma.$PostLikePayload<ExtArgs>,
+        T,
+        "findMany",
+        GlobalOmitOptions
+      >
+    | Null
+  >;
+  commentLikes<T extends Prisma.User$commentLikesArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.User$commentLikesArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$CommentLikePayload<ExtArgs>,
         T,
         "findMany",
         GlobalOmitOptions
@@ -3399,6 +3614,37 @@ export type User$postLikesArgs<
   take?: number;
   skip?: number;
   distinct?: Prisma.PostLikeScalarFieldEnum | Prisma.PostLikeScalarFieldEnum[];
+};
+
+/**
+ * User.commentLikes
+ */
+export type User$commentLikesArgs<
+  ExtArgs extends
+    runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the CommentLike
+   */
+  select?: Prisma.CommentLikeSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the CommentLike
+   */
+  omit?: Prisma.CommentLikeOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommentLikeInclude<ExtArgs> | null;
+  where?: Prisma.CommentLikeWhereInput;
+  orderBy?:
+    | Prisma.CommentLikeOrderByWithRelationInput
+    | Prisma.CommentLikeOrderByWithRelationInput[];
+  cursor?: Prisma.CommentLikeWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?:
+    | Prisma.CommentLikeScalarFieldEnum
+    | Prisma.CommentLikeScalarFieldEnum[];
 };
 
 /**

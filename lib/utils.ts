@@ -107,3 +107,35 @@ export function getAspectRatio(width: number, height: number) {
     isTall: heightToWidthRatio > 4,
   };
 }
+
+export function getRelativeTime(date: Date | string | number): string {
+  const now = new Date();
+  const past = new Date(date);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  if (diffInSeconds < 0) {
+    return "در آینده";
+  }
+
+  const intervals = [
+    { label: "سال", seconds: 31536000 },
+    { label: "ماه", seconds: 2592000 },
+    { label: "هفته", seconds: 604800 },
+    { label: "روز", seconds: 86400 },
+    { label: "ساعت", seconds: 3600 },
+    { label: "دقیقه", seconds: 60 },
+    { label: "ثانیه", seconds: 1 },
+  ];
+
+  for (const interval of intervals) {
+    const count = Math.floor(diffInSeconds / interval.seconds);
+    if (count >= 1) {
+      if (interval.label === "ثانیه") {
+        return `چند لحظه قبل`;
+      }
+      return `${count} ${interval.label} قبل`;
+    }
+  }
+
+  return "همین الان";
+}
